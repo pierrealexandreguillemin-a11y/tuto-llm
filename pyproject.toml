@@ -1,0 +1,88 @@
+# =============================================================================
+# Tuto LLM - Project Configuration
+# =============================================================================
+#
+# ISO STANDARDS ENFORCEMENT:
+# - ISO/IEC 5055:2021    Code Quality (ruff, mypy)
+# - ISO/IEC 25010:2023   Maintainability (C901 complexity)
+# - ISO/IEC 29119:2022   Testing (pytest, coverage)
+# - ISO/IEC 27001:2022   Security (bandit rules via ruff)
+#
+# =============================================================================
+
+[project]
+name = "tuto-llm"
+version = "1.0.0"
+description = "Cours progressif pour créer un mini-LLM (10-14 ans)"
+requires-python = ">=3.10"
+license = "MIT"
+
+# =============================================================================
+# RUFF — ISO 5055 + ISO 25010 (Lint + Complexity)
+# =============================================================================
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+# Rules enforced:
+# E/W   = pycodestyle (style)
+# F     = pyflakes (bugs)
+# I     = isort (import order)
+# UP    = pyupgrade (modernize syntax)
+# B     = flake8-bugbear (common bugs)
+# C901  = mccabe complexity (ISO 25010)
+# S     = flake8-bandit (security, ISO 27001)
+# SIM   = flake8-simplify (simplification)
+select = ["E", "W", "F", "I", "UP", "B", "C901", "S", "SIM"]
+
+# Complexity threshold: ISO 25010 maintainability
+# Educational code is naturally verbose, max 15
+mccabe.max-complexity = 15
+
+# Rules to ignore globally
+ignore = [
+    "S101",   # assert used in tests (pytest pattern)
+    "E501",   # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "SIM117"]
+"**/conftest.py" = ["S101"]
+
+# =============================================================================
+# MYPY — ISO 5055 (Type Safety)
+# =============================================================================
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+ignore_missing_imports = true
+explicit_package_bases = true
+
+# =============================================================================
+# PYTEST — ISO 29119 (Testing)
+# =============================================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+# =============================================================================
+# COVERAGE — ISO 29119 (Test Coverage)
+# =============================================================================
+[tool.coverage.run]
+source = ["src/"]
+
+[tool.coverage.report]
+fail_under = 70
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]

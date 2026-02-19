@@ -22,3 +22,12 @@ desktop.ini
 .env
 .venv/
 venv/
+
+# Testing & Coverage (ISO 29119)
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Linting & Type checking (ISO 5055)
+.mypy_cache/
+.ruff_cache/
