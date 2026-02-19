@@ -102,6 +102,10 @@ class TestVecAdd:
     def test_addition_negatifs(self) -> None:
         assert vec_add([1, -2], [-1, 2]) == pytest.approx([0, 0])
 
+    def test_longueurs_differentes_leve_erreur(self) -> None:
+        with pytest.raises(ValueError):
+            vec_add([1, 2], [3, 4, 5])
+
 
 # ---------------------------------------------------------------------------
 # TestRelu
@@ -144,6 +148,15 @@ class TestRandMatrix:
         m2 = rand_matrix(2, 2)
         assert m1 == m2
 
+    def test_scale_affecte_amplitude(self) -> None:
+        random.seed(42)
+        small = rand_matrix(50, 50, scale=0.01)
+        random.seed(42)
+        big = rand_matrix(50, 50, scale=10.0)
+        max_small = max(abs(v) for row in small for v in row)
+        max_big = max(abs(v) for row in big for v in row)
+        assert max_big > max_small * 10
+
 
 # ---------------------------------------------------------------------------
 # TestCalculerProbas
@@ -162,6 +175,11 @@ class TestCalculerProbas:
         poids = {"x": {"a": 0.0, "b": 0.0}}
         probas = calculer_probas(poids, "x")
         assert set(probas.keys()) == {"a", "b"}
+
+    def test_plus_grand_score_plus_grande_proba(self) -> None:
+        poids = {"a": {"x": 5.0, "y": 1.0, "z": 0.1}}
+        probas = calculer_probas(poids, "a")
+        assert probas["x"] > probas["y"] > probas["z"]
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +231,20 @@ class TestForwardLlm:
         p2 = forward_llm(seq, **model_weights)
         assert p1 == pytest.approx(p2)
 
+    def test_entrees_differentes_sorties_differentes(self, model_weights: dict) -> None:
+        seq_a = [char_to_id["."], char_to_id["a"]]
+        seq_b = [char_to_id["."], char_to_id["z"]]
+        p_a = forward_llm(seq_a, **model_weights)
+        p_b = forward_llm(seq_b, **model_weights)
+        assert p_a != pytest.approx(p_b)
+
+    def test_sequence_longue_tronquee_au_context(self, model_weights: dict) -> None:
+        """Séquence plus longue que la fenêtre de contexte."""
+        long_seq = [char_to_id["a"]] * 10  # context=4, séquence=10
+        probas = forward_llm(long_seq, **model_weights)
+        assert len(probas) == VOCAB_SIZE
+        assert abs(sum(probas) - 1.0) < 1e-6
+
 
 # ---------------------------------------------------------------------------
 # TestGeneration
@@ -255,7 +287,18 @@ class TestGeneration:
         result = generer_llm(debut=".", max_len=3, **model_weights)
         assert len(result) <= 3
 
-    def test_temperature(self, model_weights: dict) -> None:
+    def test_temperature_modifie_distribution(self, model_weights: dict) -> None:
+        """Température basse (0.01) rend la génération quasi-déterministe."""
+        results = set()
+        for i in range(5):
+            random.seed(i)
+            r = generer_llm(debut=".", temperature=0.01, max_len=5, **model_weights)
+            results.add(r)
+        # Avec température très basse, on devrait avoir peu de variété
+        assert len(results) <= 3
+
+    def test_debut_sans_point(self, model_weights: dict) -> None:
+        """Le préfixe n'est pas '.' : il doit être conservé dans le résultat."""
         random.seed(99)
-        r1 = generer_llm(debut=".", temperature=0.5, max_len=10, **model_weights)
-        assert isinstance(r1, str)
+        result = generer_llm(debut="ab", max_len=5, **model_weights)
+        assert result.startswith("ab")

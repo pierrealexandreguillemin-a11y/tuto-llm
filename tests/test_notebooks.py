@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -24,24 +25,23 @@ def test_notebook_executes(notebooks_dir: Path, notebook: str) -> None:
     nb_path = notebooks_dir / notebook
     assert nb_path.exists(), f"Notebook introuvable : {nb_path}"
 
-    result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "jupyter",
-            "nbconvert",
-            "--to",
-            "notebook",
-            "--execute",
-            "--ExecutePreprocessor.timeout=120",
-            str(nb_path),
-            "--output",
-            "/dev/null",
-        ],
-        capture_output=True,
-        text=True,
-        timeout=180,
-    )
-    assert result.returncode == 0, (
-        f"Notebook {notebook} a échoué :\n{result.stderr}"
-    )
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "output.ipynb"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "nbconvert",
+                "--to",
+                "notebook",
+                "--execute",
+                "--ExecutePreprocessor.timeout=120",
+                str(nb_path),
+                "--output",
+                str(output_path),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    assert result.returncode == 0, f"Notebook {notebook} a échoué :\n{result.stderr}"
