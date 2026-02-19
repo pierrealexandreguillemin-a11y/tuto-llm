@@ -81,12 +81,11 @@ repos:
     hooks:
       - id: pytest-cov
         name: pytest coverage gate (70%)
-        entry: python -m pytest tests/test_core.py --cov=src --cov-fail-under=70 -q
+        entry: bash -c "PYTHONPATH=src python -m pytest tests/test_core.py --cov=src --cov-fail-under=70 -q"
         language: system
         stages: [pre-push]
         pass_filenames: false
         always_run: true
-        types: [python]
 
   # ---------------------------------------------------------------------------
   # Dependency Audit — ISO 27001 (pre-push: CVE check)
@@ -95,7 +94,7 @@ repos:
     hooks:
       - id: pip-audit
         name: pip-audit (CVE check)
-        entry: python -m pip_audit
+        entry: python -m pip_audit -r requirements.txt
         language: system
         stages: [pre-push]
         pass_filenames: false
