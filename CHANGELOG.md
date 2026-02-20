@@ -72,3 +72,19 @@ sans infrastructure à un projet conforme aux normes ISO 5055, 25010,
 | ISO/IEC 27001:2022 | Sécurité | gitleaks, pip-audit |
 | ISO/IEC 12207:2017 | Cycle de vie | commitizen, commits conventionnels |
 | ISO/IEC 42001:2023 | Gouvernance IA | citations sources, anti-hallucination |
+
+### Roadmap (tâches restantes)
+
+- [ ] **Entraînement réel** : les poids du mini-LLM sont actuellement
+  aléatoires. Ajouter un notebook d'entraînement sur le dataset `data/`
+  pour produire des poids appris et des prénoms réalistes.
+- [ ] **Extraction `rand_vector`** : la fonction `rand_vector` est
+  présente dans le notebook 05 mais non extraite dans `src/tuto_llm/`.
+  Utilisée uniquement localement, elle pourrait être ajoutée à `core.py`
+  pour la cohérence de l'extraction.
+- [ ] **CI/CD** : ajouter un workflow GitHub Actions (`.github/workflows/`)
+  pour reproduire le pipeline pre-commit + pytest sur chaque Pull Request.
+  Cela garantirait la conformité ISO même sans hooks locaux installés.
+- [ ] **nbval** : mentionné dans le plan initial mais non installé.
+  Les smoke tests via nbconvert suffisent pour le moment. nbval pourrait
+  être ajouté pour valider les outputs attendus des cellules.
