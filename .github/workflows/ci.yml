@@ -1,0 +1,117 @@
+# =============================================================================
+# CI Pipeline — ISO Standards Enforcement
+# =============================================================================
+#
+# ISO 5055:2021  — Code Quality (ruff lint, ruff format, mypy)
+# ISO 25010:2023 — Maintainability (cyclomatic complexity via ruff C901)
+# ISO 29119:2022 — Testing (pytest + coverage >= 70%)
+# ISO 27001:2022 — Security (pip-audit CVE check)
+#
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # ISO 5055 — Code Quality (Lint)
+  # ---------------------------------------------------------------------------
+  lint:
+    name: "ISO 5055 — Ruff Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ruff lint (src/ and tests/)
+        run: python -m ruff check src/ tests/
+
+  # ---------------------------------------------------------------------------
+  # ISO 5055 — Code Quality (Format)
+  # ---------------------------------------------------------------------------
+  format:
+    name: "ISO 5055 — Ruff Format Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ruff format check (src/ and tests/)
+        run: python -m ruff format --check src/ tests/
+
+  # ---------------------------------------------------------------------------
+  # ISO 5055 — Type Safety (mypy)
+  # ---------------------------------------------------------------------------
+  typecheck:
+    name: "ISO 5055 — Mypy Type Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Mypy static analysis (src/)
+        run: python -m mypy src/
+
+  # ---------------------------------------------------------------------------
+  # ISO 29119 — Tests + Coverage (fast tests only)
+  # ---------------------------------------------------------------------------
+  test:
+    name: "ISO 29119 — Tests & Coverage (>= 70%)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run fast tests with coverage
+        run: PYTHONPATH=src python -m pytest tests/ -v --cov=src --cov-fail-under=70 -m "not slow"
+
+  # ---------------------------------------------------------------------------
+  # ISO 27001 — Security (Dependency Audit)
+  # ---------------------------------------------------------------------------
+  security:
+    name: "ISO 27001 — pip-audit (CVE Check)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Audit dependencies for known vulnerabilities
+        run: python -m pip_audit -r requirements.txt
