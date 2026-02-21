@@ -34,7 +34,11 @@ def mat_vec(mat: list[list[float]], vec: list[float]) -> list[float]:
 
 
 def vec_add(a: list[float], b: list[float]) -> list[float]:
-    """Addition élément par élément de deux vecteurs."""
+    """Addition élément par élément de deux vecteurs.
+
+    Note: utilise strict=True (fail-fast sur tailles différentes).
+    Le notebook utilise strict=False pour la pédagogie.
+    """
     return [x + y for x, y in zip(a, b, strict=True)]
 
 

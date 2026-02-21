@@ -4,6 +4,47 @@ Toutes les modifications notables de ce projet sont documentées ici.
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionné selon [Conventional Commits](https://www.conventionalcommits.org/fr/).
 
+## [1.1.0] - 2026-02-21
+
+Cohérence du projet : extraction complète des fonctions, CI/CD,
+et audit qualité rigoureux avec corrections de tous les findings.
+
+### Added
+
+- **`rand_vector`** extraite du notebook 05 dans `src/tuto_llm/core.py`
+  avec type hints et docstring Google style
+- **10 nouveaux tests** : TestRandVector (9), test_arret_sur_point (1)
+  — total : 42 tests (était 32)
+- **GitHub Actions CI** (`.github/workflows/ci.yml`) : 6 jobs parallèles
+  lint, format, mypy, tests+coverage, notebook smoke tests, pip-audit
+- **`[build-system]`** ajouté dans `pyproject.toml` (PEP 517)
+
+### Fixed
+
+- `vec_add` : divergence `strict=True` (core.py) vs `strict=False`
+  (notebook) documentée comme intentionnelle
+- GitHub Actions pinnées sur SHA complets (ISO 27001 supply-chain)
+- `requirements.txt` : `>=` remplacé par `~=` (bornes compatibles)
+- `pip install -e .` ajouté dans CI pour mypy et tests
+- Notebook smoke tests ajoutés dans CI (étaient exclus)
+- Test du early-stop `generer_llm` (ligne 194 était non couverte)
+- Edge cases ajoutés : `rand_vector(scale=0)`, `rand_vector(-1)`
+
+### Metrics
+
+| Métrique | Valeur |
+|----------|--------|
+| Tests | 42 pass |
+| Couverture src/ | 100% (seuil : 70%) |
+| Erreurs ruff | 0 |
+| Erreurs mypy | 0 |
+| Secrets détectés (gitleaks) | 0 |
+| CVE détectées (pip-audit) | 0 |
+| Notebooks exécutables | 5/5 |
+| Jobs CI | 6 |
+
+---
+
 ## [1.0.0] - 2026-02-20
 
 Normalisation ISO complète du projet. Le repo passe de 5 notebooks bruts
@@ -78,13 +119,10 @@ sans infrastructure à un projet conforme aux normes ISO 5055, 25010,
 - [ ] **Entraînement réel** : les poids du mini-LLM sont actuellement
   aléatoires. Ajouter un notebook d'entraînement sur le dataset `data/`
   pour produire des poids appris et des prénoms réalistes.
-- [ ] **Extraction `rand_vector`** : la fonction `rand_vector` est
-  présente dans le notebook 05 mais non extraite dans `src/tuto_llm/`.
-  Utilisée uniquement localement, elle pourrait être ajoutée à `core.py`
-  pour la cohérence de l'extraction.
-- [ ] **CI/CD** : ajouter un workflow GitHub Actions (`.github/workflows/`)
-  pour reproduire le pipeline pre-commit + pytest sur chaque Pull Request.
-  Cela garantirait la conformité ISO même sans hooks locaux installés.
+- [x] **Extraction `rand_vector`** : extraite dans `core.py` avec
+  9 tests unitaires (v1.1.0).
+- [x] **CI/CD** : workflow GitHub Actions avec 6 jobs parallèles,
+  actions pinnées sur SHA, notebook smoke tests inclus (v1.1.0).
 - [ ] **nbval** : mentionné dans le plan initial mais non installé.
   Les smoke tests via nbconvert suffisent pour le moment. nbval pourrait
   être ajouté pour valider les outputs attendus des cellules.

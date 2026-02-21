@@ -28,11 +28,12 @@ jobs:
     name: "ISO 5055 — Ruff Lint"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
         with:
           python-version: "3.10"
+          cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -47,11 +48,12 @@ jobs:
     name: "ISO 5055 — Ruff Format Check"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
         with:
           python-version: "3.10"
+          cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -66,14 +68,15 @@ jobs:
     name: "ISO 5055 — Mypy Type Check"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
         with:
           python-version: "3.10"
+          cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt && pip install -e .
 
       - name: Mypy static analysis (src/)
         run: python -m mypy src/
@@ -85,17 +88,38 @@ jobs:
     name: "ISO 29119 — Tests & Coverage (>= 70%)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
         with:
           python-version: "3.10"
+          cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt && pip install -e .
 
       - name: Run fast tests with coverage
         run: PYTHONPATH=src python -m pytest tests/ -v --cov=src --cov-fail-under=70 -m "not slow"
+
+  # ---------------------------------------------------------------------------
+  # ISO 29119 — Notebook Smoke Tests (slow)
+  # ---------------------------------------------------------------------------
+  notebooks:
+    name: "ISO 29119 — Notebook Smoke Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt && pip install -e .
+
+      - name: Run notebook smoke tests
+        run: PYTHONPATH=src python -m pytest tests/test_notebooks.py -v -m slow
 
   # ---------------------------------------------------------------------------
   # ISO 27001 — Security (Dependency Audit)
@@ -104,11 +128,12 @@ jobs:
     name: "ISO 27001 — pip-audit (CVE Check)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
         with:
           python-version: "3.10"
+          cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt

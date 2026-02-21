@@ -10,9 +10,13 @@
 #
 # =============================================================================
 
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "tuto-llm"
-version = "1.0.0"
+version = "1.1.0"
 description = "Cours progressif pour créer un mini-LLM (10-14 ans)"
 requires-python = ">=3.10"
 license = "MIT"

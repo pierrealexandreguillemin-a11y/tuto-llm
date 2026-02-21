@@ -206,6 +206,14 @@ class TestRandVector:
         mean = sum(vec) / len(vec)
         assert abs(mean) < 0.2  # moyenne proche de 0 pour N grand
 
+    def test_scale_zero_donne_vecteur_nul(self) -> None:
+        vec = rand_vector(5, scale=0.0)
+        assert vec == [0.0] * 5
+
+    def test_taille_negative_donne_vide(self) -> None:
+        vec = rand_vector(-1)
+        assert vec == []
+
 
 # ---------------------------------------------------------------------------
 # TestCalculerProbas
@@ -351,3 +359,10 @@ class TestGeneration:
         random.seed(99)
         result = generer_llm(debut="ab", max_len=5, **model_weights)
         assert result.startswith("ab")
+
+    def test_arret_sur_point(self, model_weights: dict) -> None:
+        """Le générateur s'arrête quand il produit un '.'."""
+        random.seed(0)
+        result = generer_llm(debut=".", max_len=50, **model_weights)
+        # Doit s'arrêter avant max_len (le '.' déclenche le break)
+        assert len(result) < 50
