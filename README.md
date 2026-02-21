@@ -165,20 +165,35 @@ aller vite" (l'ingénierie). C'est exactement ce qui le rend idéal pour apprend
 
 ## Objectif du tuto
 
-À la fin du cours, l'élève :
+A la fin du cours, l'élève :
 
 1. Comprend comment une IA "devine" le mot suivant
-2. A entraîné son propre mini-modèle
-3. Génère des prénoms ou mots inventés avec son modèle
+2. A construit son propre mini-modèle de langage en Python pur
+3. Génère des prénoms ou des noms de dinosaures avec son modèle
 4. Sait expliquer les mots "embedding", "attention", "loss" et "gradient"
 5. Comprend ce qui différencie son mini-modèle de ChatGPT (l'échelle, pas l'algorithme)
 
 ## Prérequis
 
 - Python 3.10+
-- Jupyter Notebook (`pip install jupyter`)
 - Savoir écrire des boucles et des fonctions en Python (niveau débutant)
 - Aucune notion de maths avancées requise
+
+## Installation
+
+```bash
+git clone <repo-url> && cd "tuto llm"
+python -m venv .venv
+source .venv/bin/activate  # ou .venv\Scripts\activate sur Windows
+pip install -r requirements.txt
+pip install -e .
+```
+
+Pour contribuer (hooks qualité) :
+
+```bash
+pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+```
 
 ## Structure du cours
 
@@ -190,12 +205,77 @@ aller vite" (l'ingénierie). C'est exactement ce qui le rend idéal pour apprend
 | 4 | `04_lattention.ipynb` | Attention, Q/K/V, masque causal | Salle de classe | 45 min |
 | 5 | `05_mon_premier_llm.ipynb` | Assemblage complet, génération | De 0 à GPT | 45 min |
 
-## Lancer
+## Lancer le cours
 
 ```bash
-cd "tuto llm"
 jupyter notebook
 ```
+
+Puis ouvrir les notebooks dans `notebooks/` dans l'ordre.
+
+## Structure du projet
+
+```
+notebooks/              # 5 leçons Jupyter (code inline pour pédagogie)
+src/tuto_llm/           # Fonctions extraites pour tests unitaires
+  core.py               # softmax, mat_vec, forward_llm, generer_llm...
+  data.py               # charger_dataset, nettoyer_mot, valider_vocab, formater_training
+  vocab.py              # VOCAB (27 tokens : '.' + a-z), char_to_id, id_to_char
+data/                   # Datasets pour entraînement
+  prenoms.txt           # ~30 800 prénoms français (INSEE, Etalab 2.0)
+  dinosaures.txt        # ~1 524 noms de dinosaures
+  haiku.csv             # 1 000 haiku (usage futur, vocab étendu requis)
+tests/                  # 88 tests (42 core + 46 data), coverage 100%
+scripts/build_datasets.py  # Pipeline reproductible de construction des datasets
+docs/                   # Documentation ISO et gouvernance IA
+  DATASETS.md           # Référence complète : 12 datasets documentés, audit qualité
+  AI_POLICY.md          # Politique anti-hallucination (ISO 42001)
+  ISO_STANDARDS_REFERENCE.md  # 6 normes ISO appliquées
+```
+
+Les **notebooks** contiennent le code inline pour la pédagogie.
+Le dossier **src/** duplique les fonctions clés pour permettre les tests
+unitaires. Les deux restent synchronisés.
+
+## Datasets
+
+| Dataset | Taille | Source | Usage |
+|---------|--------|--------|-------|
+| Prénoms INSEE | 30 806 | [INSEE](https://www.insee.fr/fr/statistiques/7633685) (Etalab 2.0) | Dataset principal, compatible vocab actuel |
+| Dinosaures | 1 524 | [Dvelezs94](https://gist.github.com/Dvelezs94/24bfcc8ab6042613ab5d94275e2e395a) | Dataset alternatif compact |
+| Haiku | 1 000 | [haikurnn](https://github.com/docmarionum1/haikurnn) | Usage futur (nécessite vocab étendu) |
+
+Régénérer les datasets : `python scripts/build_datasets.py`
+
+Voir [docs/DATASETS.md](docs/DATASETS.md) pour l'audit qualité complet
+et les 9 autres datasets documentés pour extension future.
+
+## Qualité
+
+Le projet applique 6 normes ISO adaptées au contexte éducatif :
+
+| Norme | Contrôle | Commande |
+|-------|----------|----------|
+| ISO 5055 | Qualité du code | `ruff check src/ && mypy src/` |
+| ISO 25010 | Complexité <= 15 | Intégré dans ruff (C901) |
+| ISO 29119 | Tests, coverage >= 70% | `PYTHONPATH=src pytest tests/ --cov=src --cov-fail-under=70` |
+| ISO 27001 | Pas de secrets, pas de CVE | `gitleaks protect --staged && pip-audit` |
+| ISO 12207 | Commits conventionnels | `cz check` (hook commit-msg) |
+| ISO 42001 | Citations sources, anti-hallucination | Revue manuelle des notebooks |
+
+Lancer tous les contrôles : `pre-commit run --all-files`
+
+## Etat du projet (v1.2.0)
+
+- 5 notebooks complets (probabilités, loss, embeddings, attention, LLM)
+- 88 tests, 100% coverage sur `src/`
+- 3 datasets intégrés, pipeline reproductible
+- CI GitHub Actions (6 jobs parallèles)
+- Pre-commit hooks (13 hooks, 3 stages)
+
+**Prochaine étape** : le mini-LLM a actuellement des poids aléatoires.
+L'ajout d'un notebook d'entraînement réel sur les prénoms permettra
+de produire des poids appris et de générer des prénoms réalistes.
 
 ## Références
 
@@ -203,3 +283,5 @@ jupyter notebook
 - [micrograd - Karpathy](https://github.com/karpathy/micrograd) -- autograd seul, encore plus minimal
 - [nanoGPT - Karpathy](https://github.com/karpathy/nanoGPT) -- version PyTorch, entraînable pour de vrai
 - [Vidéo "Let's build GPT"](https://www.youtube.com/watch?v=kCc8FmEb1nY) -- explication complète en 2h (anglais)
+- ["Attention Is All You Need"](https://arxiv.org/abs/1706.03762) -- Vaswani et al., 2017
+- [3Blue1Brown - Neural Networks](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) -- visualisations pédagogiques

@@ -62,6 +62,8 @@ docs/               # Documentation ISO et gouvernance IA
 
 ## Références
 
+- @README.md : Vision pédagogique + état du projet
+- @docs/DATASETS.md : Référence complète des datasets et audit qualité
 - @docs/AI_POLICY.md : Politique de gouvernance IA
 - @docs/ISO_STANDARDS_REFERENCE.md : Référence des normes ISO
 - @CONTRIBUTING.md : Guide de contribution
