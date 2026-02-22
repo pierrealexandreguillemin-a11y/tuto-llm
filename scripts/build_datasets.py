@@ -12,7 +12,8 @@ Sources:
     - Prénoms INSEE : https://www.insee.fr/fr/statistiques/7633685
     - Dinosaures    : https://gist.github.com/Dvelezs94/24bfcc8ab6042613ab5d94275e2e395a
     - Haiku         : https://github.com/docmarionum1/haikurnn
-    - Pokémon       : https://pokeapi.co/ (noms de base uniquement)
+    - Pokémon (ENG) : https://pokeapi.co/ (noms de base uniquement)
+    - Pokémon (FR)  : https://pokeapi.co/ (noms français via pokemon-species)
 """
 
 from __future__ import annotations
@@ -45,9 +46,11 @@ HAIKU_URL = (
 )
 
 POKEAPI_URL = "https://pokeapi.co/api/v2/pokemon?limit=2000"
+POKEAPI_SPECIES_URL = "https://pokeapi.co/api/v2/pokemon-species?limit=2000"
 
 MIN_PRENOM_LEN = 2  # Exclure les prénoms d'un seul caractère (bruit)
-MIN_POKEMON_LEN = 2  # Exclure les noms d'un seul caractère
+MIN_POKEMON_LEN = 2  # Exclure les noms d'un seul caractère (anglais)
+MIN_POKEMON_FR_LEN = 3  # Exclure les artefacts courts (français)
 HAIKU_SAMPLE_SIZE = 1000
 
 
@@ -85,7 +88,7 @@ def download(url: str, user_agent: str | None = None) -> bytes:
 
 def build_dinosaures() -> None:
     """Télécharge et nettoie le dataset de dinosaures."""
-    print("\n[1/4] Dinosaures")
+    print("\n[1/5] Dinosaures")
     raw = download(DINOS_URL).decode("utf-8")
 
     dinos: set[str] = set()
@@ -104,7 +107,7 @@ def build_dinosaures() -> None:
 
 def build_prenoms() -> None:
     """Télécharge et nettoie le dataset de prénoms INSEE."""
-    print("\n[2/4] Prénoms INSEE")
+    print("\n[2/5] Prénoms INSEE")
     zip_data = download(PRENOMS_URL)
 
     with zipfile.ZipFile(io.BytesIO(zip_data)) as zf:
@@ -139,7 +142,7 @@ def build_prenoms() -> None:
 
 def build_haiku() -> None:
     """Télécharge un échantillon de haiku."""
-    print("\n[3/4] Haiku")
+    print("\n[3/5] Haiku")
     raw = download(HAIKU_URL).decode("utf-8")
 
     reader = csv.reader(io.StringIO(raw))
@@ -161,9 +164,9 @@ def build_haiku() -> None:
     print(f"  -> {output} : {len(rows)} haiku")
 
 
-def build_pokemon() -> None:
-    """Télécharge les noms de base des Pokémon depuis PokéAPI."""
-    print("\n[4/4] Pokémon")
+def build_pokemon_eng() -> None:
+    """Télécharge les noms de base des Pokémon (anglais) depuis PokéAPI."""
+    print("\n[4/5] Pokémon (anglais)")
     raw = download(POKEAPI_URL, user_agent="TutoLLM/1.0")
     data = json.loads(raw)
 
@@ -181,12 +184,67 @@ def build_pokemon() -> None:
         ):
             noms.add(cleaned)
 
-    output = DATA_DIR / "pokemon.txt"
+    output = DATA_DIR / "pokemon_eng.txt"
     output.write_text(
         "\n".join(sorted(noms)) + "\n",
         encoding="utf-8",
     )
     print(f"  -> {output} : {len(noms)} noms")
+
+
+def build_pokemon_fr() -> None:
+    """Télécharge les noms français des Pokémon depuis PokéAPI.
+
+    Utilise l'endpoint pokemon-species qui fournit les traductions.
+    Nécessite une requête par espèce (~1 025 requêtes).
+    """
+    import time as _time
+
+    print("\n[5/5] Pokémon (français)")
+    raw = download(POKEAPI_SPECIES_URL, user_agent="TutoLLM/1.0")
+    listing = json.loads(raw)
+    species_urls = [entry["url"] for entry in listing["results"]]
+    print(f"  {len(species_urls)} espèces à récupérer...")
+
+    noms: set[str] = set()
+    for i, url in enumerate(species_urls):
+        try:
+            species_raw = download(url, user_agent="TutoLLM/1.0")
+        except Exception as e:  # noqa: BLE001
+            print(f"  [SKIP] {url} : {e}")
+            continue
+
+        species = json.loads(species_raw)
+        # Extraire le nom français
+        fr_name = ""
+        for name_entry in species.get("names", []):
+            if name_entry.get("language", {}).get("name") == "fr":
+                fr_name = name_entry["name"]
+                break
+
+        if not fr_name:
+            continue
+
+        cleaned = clean_word(fr_name)
+        if (
+            cleaned
+            and cleaned.isalpha()
+            and cleaned.isascii()
+            and len(cleaned) >= MIN_POKEMON_FR_LEN
+        ):
+            noms.add(cleaned)
+
+        # Progress et rate limiting
+        if (i + 1) % 100 == 0:
+            print(f"  ... {i + 1}/{len(species_urls)} ({len(noms)} noms)")
+        _time.sleep(0.05)
+
+    output = DATA_DIR / "pokemon.txt"
+    output.write_text(
+        "\n".join(sorted(noms)) + "\n",
+        encoding="utf-8",
+    )
+    print(f"  -> {output} : {len(noms)} noms français")
 
 
 # ---------------------------------------------------------------------------
@@ -202,7 +260,8 @@ def main() -> None:
     build_dinosaures()
     build_prenoms()
     build_haiku()
-    build_pokemon()
+    build_pokemon_eng()
+    build_pokemon_fr()
 
     print("\nTerminé. Fichiers générés :")
     for f in sorted(DATA_DIR.iterdir()):
