@@ -238,12 +238,12 @@ class TestIntegrationDinosaures:
         assert valider_vocab(dinos) == dinos
 
 
-class TestIntegrationPokemon:
-    """Tests d'intégration chargeant data/pokemon.txt."""
+class TestIntegrationPokemonEng:
+    """Tests d'intégration chargeant data/pokemon_eng.txt (noms anglais)."""
 
     @pytest.fixture()
     def pokemon(self) -> list[str]:
-        return charger_dataset("data/pokemon.txt")
+        return charger_dataset("data/pokemon_eng.txt")
 
     def test_fichier_existe_et_non_vide(self, pokemon: list[str]) -> None:
         assert len(pokemon) > 900
@@ -268,6 +268,44 @@ class TestIntegrationPokemon:
     def test_formater_training(self, pokemon: list[str]) -> None:
         formatted = formater_training(pokemon[:3])
         assert all(m.startswith(".") and m.endswith(".") for m in formatted)
+
+
+class TestIntegrationPokemonFr:
+    """Tests d'intégration chargeant data/pokemon.txt (noms français)."""
+
+    @pytest.fixture()
+    def pokemon_fr(self) -> list[str]:
+        return charger_dataset("data/pokemon.txt")
+
+    def test_fichier_existe_et_non_vide(self, pokemon_fr: list[str]) -> None:
+        assert len(pokemon_fr) > 800
+
+    def test_tous_pure_az(self, pokemon_fr: list[str]) -> None:
+        for mot in pokemon_fr:
+            assert mot.isalpha() and mot.isascii() and mot.islower(), f"invalide: {mot}"
+
+    def test_pas_de_doublons(self, pokemon_fr: list[str]) -> None:
+        assert len(pokemon_fr) == len(set(pokemon_fr))
+
+    def test_trie_alphabetiquement(self, pokemon_fr: list[str]) -> None:
+        assert pokemon_fr == sorted(pokemon_fr)
+
+    def test_min_3_chars(self, pokemon_fr: list[str]) -> None:
+        courts = [m for m in pokemon_fr if len(m) < 3]
+        assert courts == [], f"Pokémon < 3 chars trouvés : {courts}"
+
+    def test_100pct_valides_vocab(self, pokemon_fr: list[str]) -> None:
+        assert valider_vocab(pokemon_fr) == pokemon_fr
+
+    def test_formater_training(self, pokemon_fr: list[str]) -> None:
+        formatted = formater_training(pokemon_fr[:3])
+        assert all(m.startswith(".") and m.endswith(".") for m in formatted)
+
+    def test_noms_fr_reconnaissables(self, pokemon_fr: list[str]) -> None:
+        """Vérifie que quelques noms FR iconiques sont présents."""
+        attendus = {"pikachu", "dracaufeu", "ronflex", "evoli", "ectoplasma"}
+        presents = attendus & set(pokemon_fr)
+        assert len(presents) >= 4, f"Noms FR manquants : {attendus - presents}"
 
 
 class TestIntegrationHaiku:
