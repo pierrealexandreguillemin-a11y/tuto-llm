@@ -137,6 +137,30 @@ def build_prenoms() -> None:
     print(f"  -> {output} : {len(prenoms)} prénoms (min_len={MIN_PRENOM_LEN})")
 
 
+def build_haiku() -> None:
+    """Télécharge un échantillon de haiku."""
+    print("\n[3/4] Haiku")
+    raw = download(HAIKU_URL).decode("utf-8")
+
+    reader = csv.reader(io.StringIO(raw))
+    _header = next(reader)  # 0,1,2,source,...
+
+    rows: list[list[str]] = []
+    for i, row in enumerate(reader):
+        if i >= HAIKU_SAMPLE_SIZE:
+            break
+        rows.append(row)
+
+    output = DATA_DIR / "haiku.csv"
+    with output.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["line1", "line2", "line3", "source"])
+        for row in rows:
+            writer.writerow([row[0], row[1], row[2], row[3]])
+
+    print(f"  -> {output} : {len(rows)} haiku")
+
+
 def build_pokemon() -> None:
     """Télécharge les noms de base des Pokémon depuis PokéAPI."""
     print("\n[4/4] Pokémon")
@@ -163,30 +187,6 @@ def build_pokemon() -> None:
         encoding="utf-8",
     )
     print(f"  -> {output} : {len(noms)} noms")
-
-
-def build_haiku() -> None:
-    """Télécharge un échantillon de haiku."""
-    print("\n[3/4] Haiku")
-    raw = download(HAIKU_URL).decode("utf-8")
-
-    reader = csv.reader(io.StringIO(raw))
-    _header = next(reader)  # 0,1,2,source,...
-
-    rows: list[list[str]] = []
-    for i, row in enumerate(reader):
-        if i >= HAIKU_SAMPLE_SIZE:
-            break
-        rows.append(row)
-
-    output = DATA_DIR / "haiku.csv"
-    with output.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["line1", "line2", "line3", "source"])
-        for row in rows:
-            writer.writerow([row[0], row[1], row[2], row[3]])
-
-    print(f"  -> {output} : {len(rows)} haiku")
 
 
 # ---------------------------------------------------------------------------
