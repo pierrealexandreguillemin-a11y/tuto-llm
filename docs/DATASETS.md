@@ -26,7 +26,8 @@ Les autres nécessitent un vocabulaire étendu.
 | Compatible vocab | Oui |
 
 **Usage** : Dataset principal pour entraîner le mini-LLM à générer
-des prénoms français lettre par lettre (notebooks 3-5).
+des prénoms français lettre par lettre (notebooks 3-6). Le notebook 06
+entraîne le modèle sur 10 000 prénoms avec rétropropagation analytique.
 
 ### 2. Dinosaures
 
@@ -68,6 +69,27 @@ sans vérification préalable des droits.
 espaces, ponctuation). Pourrait servir pour un notebook avancé sur
 la génération de texte libre.
 
+### 4. Pokémon (noms anglais)
+
+| Champ | Valeur |
+|-------|--------|
+| Fichier | `data/pokemon.txt` |
+| Source | [PokéAPI](https://pokeapi.co/) |
+| Licence | **Noms (c) Nintendo / Creatures Inc. / GAME FREAK inc.** (voir note) |
+| Taille | 1 009 noms de base uniques |
+| Format | Un nom par ligne, trié alphabétiquement |
+| Nettoyage | Noms de base uniquement (avant le premier tiret), lowercase, filtré a-z, min 2 chars |
+| Compatible vocab | Oui |
+
+**Note copyright** : Les noms Pokémon sont des marques déposées de
+Nintendo / Creatures Inc. / GAME FREAK inc. Le fichier est inclus
+dans ce projet à des fins strictement éducatives et non commerciales.
+Il ne doit pas être redistribué dans un contexte commercial.
+
+**Usage** : Dataset alternatif engageant pour le public cible (10-14 ans).
+Noms inventés avec des patterns reconnaissables (suffixes, sonorités).
+Longueur moyenne 7.5 caractères, compatible avec CONTEXT=8.
+
 ---
 
 ## Datasets compatibles char-level (extensions possibles)
@@ -104,16 +126,6 @@ nettoyage, et pourraient être intégrés facilement.
 | Taille estimée | ~5 000 noms |
 | Concept ML | Vocabulaire technique, suffixes récurrents (-ite, -ase) |
 | Notes | Bonne illustration des patterns morphologiques |
-
-### Pokémon (noms anglais)
-
-| Champ | Valeur |
-|-------|--------|
-| Source | [PokéAPI](https://pokeapi.co/) |
-| Licence | API publique |
-| Taille estimée | ~1 000 noms |
-| Concept ML | Noms inventés avec des patterns reconnaissables |
-| Notes | Populaire auprès du public cible (10-14 ans) |
 
 ---
 
@@ -271,14 +283,18 @@ modifications **structurelles** du modèle.
 - **Impact combiné** : O(context² x embed_dim) passe de 512 à 204 800
   (**400x** plus de calcul par token)
 
-### 4. Entraînement (inexistant)
+### 4. Entraînement
 
-Le mini-LLM a actuellement des **poids aléatoires**. Même pour les
-prénoms, il ne génère rien de cohérent. Il faut implémenter :
+Depuis la v1.3.0, le mini-LLM dispose d'un entraînement complet :
 
 - **Loss function** : cross-entropy caractère par caractère
-- **Backpropagation** : autograd (PyTorch) ou implémentation manuelle
-- **Optimizer** : SGD au minimum, Adam pour une convergence plus rapide
+- **Backpropagation** : analytique (7 étapes, implémentation manuelle)
+- **Optimizer** : SGD en ligne (update après chaque position)
+- **Configuration** : EMBED_DIM=16, HIDDEN_DIM=32, ~2 800 paramètres
+- **Données** : 10 000 prénoms INSEE, 3 epochs (~350s en Python pur)
+
+Pour les haiku, les modifications structurelles listées ci-dessous
+restent nécessaires.
 
 ### 5. Génération multi-ligne
 
@@ -302,18 +318,143 @@ prénoms, il ne génère rien de cohérent. Il faut implémenter :
 | Vocabulaire | 27 tokens | ~52 tokens | 2x |
 | Contexte | 8 | 80 | 10x |
 | Calcul attention | O(512) | O(204 800) | 400x |
-| Entraînement | aucun | cross-entropy + SGD | nouveau |
+| Entraînement | SGD en ligne (v1.3.0) | Adam + batching | optimisation |
 | Données | 30k mots | 10k+ haiku | nouveau |
 | Type de séquence | 1 mot | 3 lignes | nouveau |
 
 ### Recommandation
 
-1. **Court terme** : entraîner le modèle actuel sur les prénoms
-   (vocabulaire déjà compatible, 30k exemples, tâche simple).
-2. **Moyen terme** : étendre le vocabulaire, augmenter le contexte,
-   implémenter l'entraînement dans un notebook dédié.
+1. ~~**Court terme** : entraîner le modèle actuel sur les prénoms~~ **Fait** (v1.3.0).
+2. **Moyen terme** : notebook dinosaures (même modèle, autre distribution).
+   Projet de niveau 2 avec PyTorch pour lever les limitations Python pur.
 3. **Long terme** : notebook avancé sur la génération de haiku avec
    10k+ données, vocabulaire étendu, et contexte long.
+
+---
+
+## Audit des temps de computation
+
+Audit réalisé le 2026-02-22 sur les 6 notebooks.
+
+### Temps d'exécution par notebook
+
+| # | Notebook | Modèle | Params | Dataset | Temps | Entraîne ? |
+|---|---------|--------|--------|---------|-------|------------|
+| 1 | Deviner la suite | Bigramme (comptage) | 729 compteurs | 20 prénoms codés en dur | <50ms | Non (comptage pur) |
+| 2 | Apprendre des erreurs | Bigramme NN | 729 poids | 20 prénoms codés en dur | ~2s | Oui (50 epochs) |
+| 3 | La mémoire du modèle | Feed-forward + embeddings | 891 poids | 20 prénoms codés en dur | ~10-15s | Oui (100 epochs) |
+| 4 | L'attention | Calcul manuel | 0 (pas de modèle) | "chat" (4 chars) | <1s | Non (conceptuel) |
+| 5 | Mon premier LLM | Transformer complet | 2 832 poids | 15 prénoms codés en dur | ~500ms | Non (assemblage) |
+| 6 | Entraîner le modèle | Transformer complet | 2 832 poids | 10 000 prénoms (fichier) | **~350s** | Oui (3 epochs) |
+
+### Décision : pourquoi ne pas augmenter les notebooks 1-5
+
+**L'interactivité est prioritaire sur la qualité du modèle.**
+
+Les notebooks 1-5 s'exécutent en <15s chacun. Cette rapidité est une
+feature pédagogique, pas une limitation :
+
+1. **Feedback immédiat** : l'élève voit la loss baisser epoch par epoch
+   en temps réel. Un entraînement de 5 minutes casserait ce retour visuel.
+2. **Itération rapide** : l'élève peut modifier le code et relancer
+   sans attendre. Essentiel pour le public cible (10-14 ans).
+3. **Petit dataset = traçabilité** : avec 20 prénoms, l'élève peut
+   vérifier mentalement que le modèle apprend les bons patterns.
+4. **Plateau visible** : 50-100 epochs suffisent pour montrer la
+   convergence. Plus d'epochs n'enseignent rien de nouveau.
+
+Le notebook 06 est le seul avec un temps long (~350s). Ce temps est
+exploité pédagogiquement : l'élève lit les sections "En vrai..." sur
+GPU, Adam, RLHF et la comparaison avec GPT-4 pendant l'attente.
+
+### Facteurs limitants en Python pur
+
+| Opération | Python pur | NumPy | PyTorch GPU | Facteur |
+|-----------|-----------|-------|-------------|---------|
+| mat_vec (16x16) | ~250 mult/s | ~10M/s | ~1G/s | 1x / 40 000x / 4M x |
+| Forward (1 token) | ~1ms | ~0.02ms | ~0.001ms | 1x / 50x / 1000x |
+| 10k prénoms × 3 epochs | ~350s | ~7s | ~0.3s | 1x / 50x / 1000x |
+
+Augmenter EMBED_DIM de 16 à 32 doublerait le temps d'entraînement
+(~700s), dépassant le budget de 600s. Augmenter le dataset à 30k
+prénoms triplerait le temps (~1050s). Les deux sont impossibles
+sans changer de stack technique.
+
+### Conclusion
+
+Le cours actuel est **dimensionné au maximum de Python pur** dans un
+budget temps raisonnable. Pour aller plus loin (plus de données, plus
+de paramètres, meilleure génération), il faut un projet de niveau 2
+avec PyTorch.
+
+---
+
+## Projet de niveau 2 : au-delà de Python pur
+
+Le cours actuel enseigne le "quoi" (l'algorithme). Un projet de
+niveau 2 enseignerait le "comment aller vite" (l'ingénierie).
+
+### Ce que le projet actuel ne peut pas faire
+
+| Limitation | Cause | Impact |
+|------------|-------|--------|
+| ~2 800 paramètres max | Python pur trop lent | Patterns courts seulement |
+| 10k prénoms max | Budget temps 600s | Ne peut pas utiliser les 30k |
+| 1 couche transformer | Plus de couches = plus de calcul | Capacité limitée |
+| 1 tête d'attention | EMBED_DIM=16 trop petit pour split | Perspective unique |
+| Pas de LayerNorm | Ajouterait de la complexité | Instabilité sur gros modèles |
+| Pas de Dropout | Ajouterait de la complexité | Surapprentissage possible |
+| SGD basique | Adam trop complexe à implémenter | Convergence lente |
+| Vocab 27 tokens | Pas de texte libre | Mots courts a-z uniquement |
+
+### Ce que PyTorch apporterait
+
+| Composant | Python pur (actuel) | PyTorch (niveau 2) |
+|-----------|--------------------|--------------------|
+| Autograd | 80 lignes de `backward_llm()` | `loss.backward()` (1 ligne) |
+| Calcul | Boucles `for` | Tenseurs vectorisés (50x) |
+| GPU | Impossible | CUDA (1000x supplémentaire) |
+| Optimizer | SGD en ligne | Adam avec lr decay |
+| Architecture | 1 couche, 1 tête, ~2 800 params | 4+ couches, 4 têtes, ~100k params |
+| Contexte | 8 caractères | 128+ caractères |
+| Vocabulaire | 27 tokens (a-z + .) | 52+ tokens (texte libre) |
+| Datasets | Prénoms, dinosaures | + haiku, fables, proverbes |
+| Entraînement | ~350s pour 10k mots | ~10s pour 30k mots |
+
+### Prérequis pour le niveau 2
+
+- Avoir terminé les 6 notebooks du cours actuel
+- Connaître NumPy (tableaux, opérations vectorisées)
+- Installer PyTorch (`pip install torch`)
+
+### Contenu envisagé
+
+1. **Traduction du mini-LLM en PyTorch** : même architecture, même
+   résultat, mais en 50 lignes au lieu de 300. L'élève voit que
+   PyTorch fait exactement ce qu'il a codé à la main.
+2. **Scaling up** : 4 couches, 4 têtes, EMBED_DIM=64, entraînement
+   sur 30k prénoms en 10 secondes. Comparaison qualitative avant/après.
+3. **Vocabulaire étendu** : espaces, ponctuation, majuscules. Génération
+   de haiku ou de proverbes.
+4. **GPU** : même code, `model.to("cuda")`, 1000x plus rapide.
+5. **nanoGPT** : passage au [nanoGPT de Karpathy](https://github.com/karpathy/nanoGPT),
+   version production du même algorithme.
+
+### Relation entre les deux projets
+
+```
+Tuto LLM (ce projet)          Projet niveau 2
+─────────────────────          ─────────────────
+Python pur, 0 dépendance  →   PyTorch + CUDA
+Comprendre l'algorithme    →   Obtenir des résultats
+~2 800 paramètres          →   ~100 000+ paramètres
+10-14 ans, débutant        →   Lycée/fac, connaît NumPy
+"Quoi"                     →   "Comment aller vite"
+```
+
+Le principe fondateur — *"This file is the complete algorithm.
+Everything else is just efficiency."* — reste intact : le projet
+actuel enseigne l'algorithme complet, le niveau 2 ajoute l'efficacité.
 
 ---
 

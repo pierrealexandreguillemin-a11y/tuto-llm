@@ -4,6 +4,51 @@ Toutes les modifications notables de ce projet sont documentées ici.
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionné selon [Conventional Commits](https://www.conventionalcommits.org/fr/).
 
+## [1.4.0] - 2026-02-22
+
+Intégration du dataset Pokémon pré-généré, préparation de l'héritage
+entre notebooks (gitignore des JSON intermédiaires).
+
+### Added
+
+- **`data/pokemon.txt`** : 1 009 noms de base Pokémon (a-z, triés).
+  Source : PokéAPI. Noms de base uniquement (avant le premier tiret).
+  (c) Nintendo / Creatures Inc. / GAME FREAK inc., usage éducatif.
+- **`tests/test_data.py::TestIntegrationPokemon`** : 7 tests
+  (taille, a-z, doublons, tri, min_len, vocab, formatage).
+
+### Changed
+
+- **`scripts/build_datasets.py`** : Ajout `build_pokemon()` avec
+  User-Agent, extraction noms de base, constante `MIN_POKEMON_LEN`.
+  Pipeline passe de 3 à 4 datasets.
+- **`docs/DATASETS.md`** : Pokémon déplacé de "extensions possibles"
+  vers "Datasets intégrés" (section 4) avec avertissement copyright.
+- **`README.md`** : Pokémon au tableau datasets, compteurs mis à jour
+  (115 tests, 4 datasets, 8 autres documentés).
+- **`CLAUDE.md`** : `pokemon.txt` ajouté à la structure, compteurs.
+- **`CONTRIBUTING.md`** : Compteur tests mis à jour.
+- **`docs/ISO_STANDARDS_REFERENCE.md`** : 108 → 115 tests.
+- **`.gitignore`** : Ajout `data/nb*.json` (fichiers intermédiaires
+  notebooks, préparation héritage entre notebooks).
+
+### Removed
+
+- **`scripts/_benchmark_nb.py`** : Fichier orphelin de benchmark
+  (3 erreurs ruff, non prévu dans le projet).
+
+### Metrics
+
+| Métrique | Valeur |
+|----------|--------|
+| Tests | 115 pass (42 core + 53 data + 20 training) |
+| Couverture src/ | 100% (seuil : 70%) |
+| Erreurs ruff | 0 |
+| Erreurs mypy | 0 |
+| Datasets intégrés | 4 (prénoms, dinosaures, pokémon, haiku) |
+
+---
+
 ## [1.3.0] - 2026-02-22
 
 Entraînement réel du mini-LLM : rétropropagation analytique, SGD en ligne,
@@ -24,6 +69,20 @@ génération de prénoms appris sur 10 000 prénoms INSEE.
 - **`tests/test_notebooks.py`** : Ajout notebook 06 avec timeout étendu
   (600s preprocessor, 660s subprocess) pour l'entraînement.
 - **`notebooks/05_mon_premier_llm.ipynb`** : Lien vers leçon 6 ajouté.
+- **`docs/DATASETS.md`** : Section "Entraînement" mise à jour (v1.3.0),
+  ajout audit des temps de computation (6 notebooks) et section
+  "Projet de niveau 2" (PyTorch, scaling, vocabulaire étendu).
+- **`docs/AI_POLICY.md`** : 5 → 6 notebooks, analogie "chaîne de
+  dominos" ajoutée, sections "En vrai..." documentées.
+- **`docs/ISO_STANDARDS_REFERENCE.md`** : 26 → 108 tests, 5 → 6 notebooks.
+- **`CONTRIBUTING.md`** : Ajout `training.py` dans l'architecture,
+  tous les fichiers de tests listés.
+
+### Fixed
+
+- **`.pre-commit-config.yaml`** : Le hook pre-push pytest ne lançait
+  que `test_core.py` (42 tests, 32% coverage). Corrigé pour inclure
+  les 3 fichiers de tests (108 tests, 100% coverage).
 
 ### Metrics
 

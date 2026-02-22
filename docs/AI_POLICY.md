@@ -17,7 +17,7 @@ porte sur la **qualité et la fiabilité du contenu pédagogique**.
 |--------|-------------|--------|------------|
 | Hallucination technique | Moyen | Haut | Citation des sources, vérification contre le code |
 | Simplification excessive | Moyen | Moyen | Notes "En vrai..." dans les notebooks |
-| Code non fonctionnel | Faible | Haut | Smoke tests automatisés sur les 5 notebooks |
+| Code non fonctionnel | Faible | Haut | Smoke tests automatisés sur les 6 notebooks |
 | Confusion pédagogique | Moyen | Moyen | Analogies testées, progression logique |
 
 ## 4. Sources autorisées
@@ -41,14 +41,16 @@ Tout contenu technique doit être vérifiable contre ces sources :
 1. **Chaque claim technique** dans les notebooks doit correspondre
    à une implémentation vérifiable dans le code ou dans les sources citées.
 
-2. **Les analogies** (lancer au panier, filtre Instagram, salle de classe)
-   sont explicitement marquées comme des simplifications.
+2. **Les analogies** (lancer au panier, filtre Instagram, salle de classe,
+   chaîne de dominos) sont explicitement marquées comme des simplifications.
 
 3. **Les chiffres** (nombre de paramètres, comparaisons avec GPT-4)
    doivent être sourcés ou calculés dans le code.
 
 4. **Les simplifications** sont documentées : le tuto indique ce qui
-   est omis (autograd, Adam, multi-couches, etc.) et pourquoi.
+   est omis (autograd, Adam, multi-couches, GPU, RLHF, etc.) et pourquoi.
+   Le notebook 06 inclut des sections "En vrai..." détaillant les
+   différences avec les vrais LLM.
 
 ## 6. Citations dans les notebooks
 

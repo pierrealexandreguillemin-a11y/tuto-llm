@@ -27,6 +27,7 @@
 data/               # Datasets pour entraînement
   prenoms.txt       # ~30k prénoms INSEE (a-z)
   dinosaures.txt    # ~1.5k noms de dinosaures (a-z)
+  pokemon.txt       # ~1k noms Pokémon (a-z, (c) Nintendo, usage éducatif)
   haiku.csv         # 1k haiku (usage futur, vocab étendu)
 notebooks/          # 6 leçons Jupyter (code inline pour pédagogie)
 src/tuto_llm/       # Fonctions extraites pour tests unitaires
@@ -36,7 +37,7 @@ src/tuto_llm/       # Fonctions extraites pour tests unitaires
   vocab.py          # VOCAB, char_to_id, id_to_char
 tests/              # Tests unitaires + smoke tests notebooks
   test_core.py      # 42 tests sur les fonctions extraites
-  test_data.py      # 46 tests (unitaires + intégration données)
+  test_data.py      # 53 tests (unitaires + intégration données)
   test_training.py  # 20 tests (unitaires + vérification numérique gradients)
   test_notebooks.py # Exécution des 6 notebooks (marqués slow)
 scripts/            # Scripts utilitaires

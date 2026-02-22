@@ -35,7 +35,7 @@ Ce projet suit des normes ISO strictes adaptées au contexte éducatif.
 ### ISO 29119 — Tests
 
 - **Couverture** : >= 70% sur `src/`
-- **Tests unitaires** : `pytest tests/test_core.py`
+- **Tests unitaires** : `pytest tests/test_core.py tests/test_data.py tests/test_training.py` (115 tests)
 - **Smoke tests** : `pytest tests/test_notebooks.py -m slow`
 - Commande complète : `pytest tests/ --cov=src --cov-fail-under=70`
 
@@ -78,3 +78,11 @@ Commits conventionnels obligatoires :
 Les **notebooks** contiennent le code inline pour la pédagogie.
 Le dossier **src/tuto_llm/** duplique les fonctions clés pour permettre
 les tests unitaires. Les deux doivent rester synchronisés.
+
+```
+src/tuto_llm/
+  core.py       # softmax, mat_vec, forward_llm, generer_llm...
+  data.py       # charger_dataset, nettoyer_mot, valider_vocab, formater_training
+  training.py   # forward_with_cache, backward_llm, cross_entropy_loss, calcul_loss
+  vocab.py      # VOCAB, char_to_id, id_to_char
+```

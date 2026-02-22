@@ -47,9 +47,9 @@ et leur implémentation concrète.
 **Objectif** : Assurer la fiabilité par des tests systématiques.
 
 **Implémentation** :
-- Tests unitaires sur `src/tuto_llm/` (26 tests)
-- Smoke tests sur les 5 notebooks (exécution complète)
-- Couverture minimale : **70%** sur `src/`
+- Tests unitaires sur `src/tuto_llm/` (115 tests : 42 core + 53 data + 20 training)
+- Smoke tests sur les 6 notebooks (exécution complète)
+- Couverture minimale : **70%** sur `src/` (100% atteint)
 - Proportionné au contexte éducatif (vs 80% pour pocket_arbiter)
 
 **Vérification** : `pytest tests/ --cov=src --cov-fail-under=70`

@@ -226,8 +226,9 @@ src/tuto_llm/           # Fonctions extraites pour tests unitaires
 data/                   # Datasets pour entraînement
   prenoms.txt           # ~30 800 prénoms français (INSEE, Etalab 2.0)
   dinosaures.txt        # ~1 524 noms de dinosaures
+  pokemon.txt           # ~1 009 noms Pokémon ((c) Nintendo, usage éducatif)
   haiku.csv             # 1 000 haiku (usage futur, vocab étendu requis)
-tests/                  # 108 tests (42 core + 46 data + 20 training), coverage 100%
+tests/                  # 115 tests (42 core + 53 data + 20 training), coverage 100%
 scripts/build_datasets.py  # Pipeline reproductible de construction des datasets
 docs/                   # Documentation ISO et gouvernance IA
   DATASETS.md           # Référence complète : 12 datasets documentés, audit qualité
@@ -245,12 +246,13 @@ unitaires. Les deux restent synchronisés.
 |---------|--------|--------|-------|
 | Prénoms INSEE | 30 806 | [INSEE](https://www.insee.fr/fr/statistiques/7633685) (Etalab 2.0) | Dataset principal, compatible vocab actuel |
 | Dinosaures | 1 524 | [Dvelezs94](https://gist.github.com/Dvelezs94/24bfcc8ab6042613ab5d94275e2e395a) | Dataset alternatif compact |
+| Pokémon | 1 009 | [PokéAPI](https://pokeapi.co/) ((c) Nintendo/Creatures/GAME FREAK) | Dataset engageant pour le public cible |
 | Haiku | 1 000 | [haikurnn](https://github.com/docmarionum1/haikurnn) | Usage futur (nécessite vocab étendu) |
 
 Régénérer les datasets : `python scripts/build_datasets.py`
 
 Voir [docs/DATASETS.md](docs/DATASETS.md) pour l'audit qualité complet
-et les 9 autres datasets documentés pour extension future.
+et les 8 autres datasets documentés pour extension future.
 
 ## Qualité
 
@@ -270,8 +272,8 @@ Lancer tous les contrôles : `pre-commit run --all-files`
 ## Etat du projet (v1.3.0)
 
 - 6 notebooks complets (probabilités, loss, embeddings, attention, LLM, entraînement)
-- 108 tests, 100% coverage sur `src/`
-- 3 datasets intégrés, pipeline reproductible
+- 115 tests, 100% coverage sur `src/`
+- 4 datasets intégrés, pipeline reproductible
 - CI GitHub Actions (6 jobs parallèles)
 - Pre-commit hooks (13 hooks, 3 stages)
 - Entraînement réel sur 10k prénoms avec rétropropagation analytique
