@@ -4,6 +4,45 @@ Toutes les modifications notables de ce projet sont documentées ici.
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionné selon [Conventional Commits](https://www.conventionalcommits.org/fr/).
 
+## [1.3.0] - 2026-02-22
+
+Entraînement réel du mini-LLM : rétropropagation analytique, SGD en ligne,
+génération de prénoms appris sur 10 000 prénoms INSEE.
+
+### Added
+
+- **`notebooks/06_entrainer_le_modele.ipynb`** : Notebook d'entraînement
+  complet. Forward avec cache, backward analytique (7 étapes), boucle SGD
+  sur 10k prénoms × 3 epochs. Sections "En vrai..." sur GPU, Adam, RLHF.
+- **`src/tuto_llm/training.py`** : Module d'entraînement avec
+  `cross_entropy_loss`, `forward_with_cache`, `backward_llm`, `calcul_loss`.
+- **`tests/test_training.py`** : 20 tests (4 cross-entropy + 4 forward +
+  8 backward avec vérification numérique + 4 calcul_loss).
+
+### Changed
+
+- **`tests/test_notebooks.py`** : Ajout notebook 06 avec timeout étendu
+  (600s preprocessor, 660s subprocess) pour l'entraînement.
+- **`notebooks/05_mon_premier_llm.ipynb`** : Lien vers leçon 6 ajouté.
+
+### Metrics
+
+| Métrique | Valeur |
+|----------|--------|
+| Tests | 108 pass (42 core + 46 data + 20 training) |
+| Couverture src/ | 100% (seuil : 70%) |
+| Erreurs ruff | 0 |
+| Erreurs mypy | 0 |
+| Notebooks exécutables | 6/6 |
+
+### Roadmap
+
+- [x] **Entraînement réel** : notebook 06 avec backprop analytique (v1.3.0)
+- [ ] **Notebook dinosaures** : entraîner sur dinosaures.txt
+- [ ] **nbval** : validation des outputs attendus
+
+---
+
 ## [1.2.0] - 2026-02-21
 
 Intégration de 3 datasets, pipeline reproductible, documentation exhaustive,
@@ -152,9 +191,8 @@ sans infrastructure à un projet conforme aux normes ISO 5055, 25010,
 
 ### Roadmap (tâches restantes)
 
-- [ ] **Entraînement réel** : les poids du mini-LLM sont actuellement
-  aléatoires. Ajouter un notebook d'entraînement sur le dataset `data/`
-  pour produire des poids appris et des prénoms réalistes.
+- [x] **Entraînement réel** : notebook 06 avec rétropropagation analytique,
+  SGD en ligne, 10k prénoms × 3 epochs (v1.3.0).
 - [x] **Extraction `rand_vector`** : extraite dans `core.py` avec
   9 tests unitaires (v1.1.0).
 - [x] **CI/CD** : workflow GitHub Actions avec 6 jobs parallèles,
@@ -162,6 +200,8 @@ sans infrastructure à un projet conforme aux normes ISO 5055, 25010,
 - [x] **Datasets d'entraînement** : 3 datasets intégrés (prénoms,
   dinosaures, haiku), pipeline reproductible, 46 tests, documentation
   exhaustive de 12 datasets (v1.2.0).
+- [ ] **Notebook dinosaures** : entraîner sur dinosaures.txt pour montrer
+  que le même modèle apprend des distributions différentes.
 - [ ] **nbval** : mentionné dans le plan initial mais non installé.
   Les smoke tests via nbconvert suffisent pour le moment. nbval pourrait
   être ajouté pour valider les outputs attendus des cellules.

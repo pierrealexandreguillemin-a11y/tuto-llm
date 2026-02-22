@@ -28,15 +28,17 @@ data/               # Datasets pour entraînement
   prenoms.txt       # ~30k prénoms INSEE (a-z)
   dinosaures.txt    # ~1.5k noms de dinosaures (a-z)
   haiku.csv         # 1k haiku (usage futur, vocab étendu)
-notebooks/          # 5 leçons Jupyter (code inline pour pédagogie)
+notebooks/          # 6 leçons Jupyter (code inline pour pédagogie)
 src/tuto_llm/       # Fonctions extraites pour tests unitaires
   core.py           # softmax, mat_vec, forward_llm, generer_llm...
   data.py           # charger_dataset, charger_csv, nettoyer_mot, valider_vocab, formater_training
+  training.py       # forward_with_cache, backward_llm, cross_entropy_loss, calcul_loss
   vocab.py          # VOCAB, char_to_id, id_to_char
 tests/              # Tests unitaires + smoke tests notebooks
   test_core.py      # 42 tests sur les fonctions extraites
   test_data.py      # 46 tests (unitaires + intégration données)
-  test_notebooks.py # Exécution des 5 notebooks (marqués slow)
+  test_training.py  # 20 tests (unitaires + vérification numérique gradients)
+  test_notebooks.py # Exécution des 6 notebooks (marqués slow)
 scripts/            # Scripts utilitaires
   build_datasets.py # Pipeline reproductible de construction des datasets
 docs/               # Documentation ISO et gouvernance IA

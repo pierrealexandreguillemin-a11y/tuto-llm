@@ -204,6 +204,7 @@ pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre
 | 3 | `03_la_memoire_du_modele.ipynb` | Embeddings, contexte, réseau | Notes sur 10 pour chaque lettre | 30 min |
 | 4 | `04_lattention.ipynb` | Attention, Q/K/V, masque causal | Salle de classe | 45 min |
 | 5 | `05_mon_premier_llm.ipynb` | Assemblage complet, génération | De 0 à GPT | 45 min |
+| 6 | `06_entrainer_le_modele.ipynb` | Rétropropagation, entraînement réel | Chaîne de dominos | 45 min |
 
 ## Lancer le cours
 
@@ -216,16 +217,17 @@ Puis ouvrir les notebooks dans `notebooks/` dans l'ordre.
 ## Structure du projet
 
 ```
-notebooks/              # 5 leçons Jupyter (code inline pour pédagogie)
+notebooks/              # 6 leçons Jupyter (code inline pour pédagogie)
 src/tuto_llm/           # Fonctions extraites pour tests unitaires
   core.py               # softmax, mat_vec, forward_llm, generer_llm...
   data.py               # charger_dataset, nettoyer_mot, valider_vocab, formater_training
+  training.py           # forward_with_cache, backward_llm, cross_entropy_loss, calcul_loss
   vocab.py              # VOCAB (27 tokens : '.' + a-z), char_to_id, id_to_char
 data/                   # Datasets pour entraînement
   prenoms.txt           # ~30 800 prénoms français (INSEE, Etalab 2.0)
   dinosaures.txt        # ~1 524 noms de dinosaures
   haiku.csv             # 1 000 haiku (usage futur, vocab étendu requis)
-tests/                  # 88 tests (42 core + 46 data), coverage 100%
+tests/                  # 108 tests (42 core + 46 data + 20 training), coverage 100%
 scripts/build_datasets.py  # Pipeline reproductible de construction des datasets
 docs/                   # Documentation ISO et gouvernance IA
   DATASETS.md           # Référence complète : 12 datasets documentés, audit qualité
@@ -265,17 +267,14 @@ Le projet applique 6 normes ISO adaptées au contexte éducatif :
 
 Lancer tous les contrôles : `pre-commit run --all-files`
 
-## Etat du projet (v1.2.0)
+## Etat du projet (v1.3.0)
 
-- 5 notebooks complets (probabilités, loss, embeddings, attention, LLM)
-- 88 tests, 100% coverage sur `src/`
+- 6 notebooks complets (probabilités, loss, embeddings, attention, LLM, entraînement)
+- 108 tests, 100% coverage sur `src/`
 - 3 datasets intégrés, pipeline reproductible
 - CI GitHub Actions (6 jobs parallèles)
 - Pre-commit hooks (13 hooks, 3 stages)
-
-**Prochaine étape** : le mini-LLM a actuellement des poids aléatoires.
-L'ajout d'un notebook d'entraînement réel sur les prénoms permettra
-de produire des poids appris et de générer des prénoms réalistes.
+- Entraînement réel sur 10k prénoms avec rétropropagation analytique
 
 ## Références
 
