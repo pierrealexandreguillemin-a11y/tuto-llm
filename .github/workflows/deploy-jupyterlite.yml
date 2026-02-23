@@ -40,7 +40,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install JupyterLite
-        run: pip install jupyterlite-core jupyterlite-pyodide-kernel
+        run: pip install jupyterlite-core jupyterlite-pyodide-kernel jupyter-server
 
       - name: Build JupyterLite site
         run: jupyter lite build --contents notebooks/ --output-dir _output
