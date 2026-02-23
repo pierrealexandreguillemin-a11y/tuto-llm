@@ -63,9 +63,22 @@ Chaque notebook doit inclure une cellule finale de citations avec :
 - Les liens vers le code source de référence
 - Les crédits pour les analogies ou visualisations empruntées
 
-## 7. Processus de vérification
+## 7. Pratiques pédagogiques
+
+Les notebooks suivent des conventions documentées dans
+`docs/PEDAGOGICAL_PRACTICES.md`, basées sur 7 sources de référence
+(Capytale, EPFL, jupyter4edu, Callysto, ML for Kids, Kaggle Learn).
+
+Contrôles appliqués :
+- 18 exercices interactifs (4+3+3+2+3+3) avec variables modifiables
+- Règle Callysto : max 4 cellules entre exercices
+- Scaffolding progressif (niveaux 1 à 5)
+- Rappel Jupyter + séparateurs visuels dans chaque notebook
+
+## 8. Processus de vérification
 
 1. Les notebooks sont exécutés automatiquement (smoke tests)
 2. Les fonctions extraites sont testées unitairement
 3. La revue de contenu vérifie les citations contre les sources
 4. Tout nouveau contenu technique nécessite une source vérifiable
+5. Audit pédagogique : conformité Callysto, exercices, séparateurs

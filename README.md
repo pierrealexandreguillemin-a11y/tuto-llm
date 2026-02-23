@@ -275,14 +275,16 @@ Le projet applique 6 normes ISO adaptées au contexte éducatif :
 
 Lancer tous les contrôles : `pre-commit run --all-files`
 
-## Etat du projet (v1.4.0)
+## Etat du projet (v1.5.0)
 
 - 6 notebooks complets (probabilités, loss, embeddings, attention, LLM, entraînement)
+- 18 exercices interactifs (4+3+3+2+3+3), rappel Jupyter, séparateurs visuels
 - 124 tests, 100% coverage sur `src/`
 - 5 datasets intégrés, pipeline reproductible
 - CI GitHub Actions (6 jobs parallèles)
 - Pre-commit hooks (13 hooks, 3 stages)
 - Entraînement réel sur ~1k Pokémon FR avec rétropropagation analytique
+- Pratiques pédagogiques documentées ([docs/PEDAGOGICAL_PRACTICES.md](docs/PEDAGOGICAL_PRACTICES.md))
 
 ## Références
 

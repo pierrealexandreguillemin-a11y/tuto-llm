@@ -88,9 +88,17 @@ et leur implémentation concrète.
 **Objectif** : Assurer la transparence et la fiabilité du contenu IA.
 
 **Implémentation** :
-- Citations sources dans chaque notebook
+- Citations sources dans chaque notebook (cellule "Sources" finale)
 - Vérification anti-hallucination des claims techniques
 - Politique documentée dans `docs/AI_POLICY.md`
+- Pratiques pédagogiques documentées dans `docs/PEDAGOGICAL_PRACTICES.md`
+  (7 sources de référence : Capytale, EPFL, jupyter4edu, Callysto, etc.)
+
+**Contrôle pédagogique** (v1.5.0) :
+- 18 exercices interactifs répartis sur 6 notebooks (4+3+3+2+3+3)
+- Règle Callysto : max 4 cellules entre exercices (attention 10-14 ans)
+- Scaffolding 5 niveaux : Exécuter → Observer → Modifier → Compléter → Créer
+- Rappel Jupyter en tête de chaque notebook, séparateurs visuels `---`
 
 **Sources référencées** :
 - [microgpt.py](https://gist.github.com/karpathy/8627fe009c40f57531cb18360106ce95) — Andrej Karpathy
@@ -98,4 +106,4 @@ et leur implémentation concrète.
 - [3Blue1Brown - Neural Networks](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
 - [PokéAPI](https://pokeapi.co/) — (c) Nintendo / Creatures Inc. / GAME FREAK inc.
 
-**Vérification** : Revue manuelle des notebooks
+**Vérification** : Revue manuelle des notebooks + `grep -c "A toi de jouer" notebooks/*.ipynb`
