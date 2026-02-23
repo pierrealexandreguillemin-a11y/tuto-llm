@@ -25,9 +25,10 @@ Les autres nécessitent un vocabulaire étendu.
 | Nettoyage | Lowercase, accents supprimés (NFKD), filtré a-z, min 2 chars |
 | Compatible vocab | Oui |
 
-**Usage** : Dataset principal pour entraîner le mini-LLM à générer
-des prénoms français lettre par lettre (notebooks 3-6). Le notebook 06
-entraîne le modèle sur 10 000 prénoms avec rétropropagation analytique.
+**Usage** : Dataset de référence pour la génération de prénoms français.
+Les notebooks 1-6 utilisent désormais les noms de Pokémon FR comme
+dataset principal. Le notebook 06 entraîne le modèle sur ~1 000 Pokémon
+avec rétropropagation analytique.
 
 ### 2. Dinosaures
 
@@ -331,7 +332,7 @@ Depuis la v1.3.0, le mini-LLM dispose d'un entraînement complet :
 - **Backpropagation** : analytique (7 étapes, implémentation manuelle)
 - **Optimizer** : SGD en ligne (update après chaque position)
 - **Configuration** : EMBED_DIM=16, HIDDEN_DIM=32, ~2 800 paramètres
-- **Données** : 10 000 prénoms INSEE, 3 epochs (~350s en Python pur)
+- **Données** : ~1 000 Pokémon FR, 10 epochs (~190s en Python pur)
 
 Pour les haiku, les modifications structurelles listées ci-dessous
 restent nécessaires.
@@ -385,7 +386,7 @@ Audit réalisé le 2026-02-22 sur les 6 notebooks.
 | 3 | La mémoire du modèle | Feed-forward + embeddings | 891 poids | 20 prénoms codés en dur | ~10-15s | Oui (100 epochs) |
 | 4 | L'attention | Calcul manuel | 0 (pas de modèle) | "chat" (4 chars) | <1s | Non (conceptuel) |
 | 5 | Mon premier LLM | Transformer complet | 2 832 poids | 15 prénoms codés en dur | ~500ms | Non (assemblage) |
-| 6 | Entraîner le modèle | Transformer complet | 2 832 poids | 10 000 prénoms (fichier) | **~350s** | Oui (3 epochs) |
+| 6 | Entraîner le modèle | Transformer complet | 2 832 poids | ~1 000 Pokémon (inline) | **~190s** | Oui (10 epochs) |
 
 ### Décision : pourquoi ne pas augmenter les notebooks 1-5
 
@@ -403,7 +404,7 @@ feature pédagogique, pas une limitation :
 4. **Plateau visible** : 50-100 epochs suffisent pour montrer la
    convergence. Plus d'epochs n'enseignent rien de nouveau.
 
-Le notebook 06 est le seul avec un temps long (~350s). Ce temps est
+Le notebook 06 est le seul avec un temps long (~190s). Ce temps est
 exploité pédagogiquement : l'élève lit les sections "En vrai..." sur
 GPU, Adam, RLHF et la comparaison avec GPT-4 pendant l'attente.
 
@@ -413,11 +414,11 @@ GPU, Adam, RLHF et la comparaison avec GPT-4 pendant l'attente.
 |-----------|-----------|-------|-------------|---------|
 | mat_vec (16x16) | ~250 mult/s | ~10M/s | ~1G/s | 1x / 40 000x / 4M x |
 | Forward (1 token) | ~1ms | ~0.02ms | ~0.001ms | 1x / 50x / 1000x |
-| 10k prénoms × 3 epochs | ~350s | ~7s | ~0.3s | 1x / 50x / 1000x |
+| ~1k Pokémon × 10 epochs | ~190s | ~4s | ~0.2s | 1x / 50x / 1000x |
 
 Augmenter EMBED_DIM de 16 à 32 doublerait le temps d'entraînement
-(~700s), dépassant le budget de 600s. Augmenter le dataset à 30k
-prénoms triplerait le temps (~1050s). Les deux sont impossibles
+(~380s). Augmenter le dataset à 30k prénoms avec 3 epochs prendrait
+~350s. Les deux restent faisables séparément mais pas ensemble
 sans changer de stack technique.
 
 ### Conclusion
@@ -439,7 +440,7 @@ niveau 2 enseignerait le "comment aller vite" (l'ingénierie).
 | Limitation | Cause | Impact |
 |------------|-------|--------|
 | ~2 800 paramètres max | Python pur trop lent | Patterns courts seulement |
-| 10k prénoms max | Budget temps 600s | Ne peut pas utiliser les 30k |
+| ~1k Pokémon (inline) | Python pur trop lent pour 30k | Dataset compact mais engageant |
 | 1 couche transformer | Plus de couches = plus de calcul | Capacité limitée |
 | 1 tête d'attention | EMBED_DIM=16 trop petit pour split | Perspective unique |
 | Pas de LayerNorm | Ajouterait de la complexité | Instabilité sur gros modèles |
@@ -459,7 +460,7 @@ niveau 2 enseignerait le "comment aller vite" (l'ingénierie).
 | Contexte | 8 caractères | 128+ caractères |
 | Vocabulaire | 27 tokens (a-z + .) | 52+ tokens (texte libre) |
 | Datasets | Prénoms, dinosaures | + haiku, fables, proverbes |
-| Entraînement | ~350s pour 10k mots | ~10s pour 30k mots |
+| Entraînement | ~190s pour ~1k mots | ~10s pour 30k mots |
 
 ### Prérequis pour le niveau 2
 

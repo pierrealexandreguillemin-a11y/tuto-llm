@@ -169,7 +169,7 @@ A la fin du cours, l'élève :
 
 1. Comprend comment une IA "devine" le mot suivant
 2. A construit son propre mini-modèle de langage en Python pur
-3. Génère des prénoms ou des noms de dinosaures avec son modèle
+3. Génère des noms de Pokémon ou de dinosaures avec son modèle
 4. Sait expliquer les mots "embedding", "attention", "loss" et "gradient"
 5. Comprend ce qui différencie son mini-modèle de ChatGPT (l'échelle, pas l'algorithme)
 
@@ -279,7 +279,7 @@ Lancer tous les contrôles : `pre-commit run --all-files`
 - 5 datasets intégrés, pipeline reproductible
 - CI GitHub Actions (6 jobs parallèles)
 - Pre-commit hooks (13 hooks, 3 stages)
-- Entraînement réel sur 10k prénoms avec rétropropagation analytique
+- Entraînement réel sur ~1k Pokémon FR avec rétropropagation analytique
 
 ## Références
 
