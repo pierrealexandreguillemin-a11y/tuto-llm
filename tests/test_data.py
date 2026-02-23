@@ -269,6 +269,12 @@ class TestIntegrationPokemonEng:
         formatted = formater_training(pokemon[:3])
         assert all(m.startswith(".") and m.endswith(".") for m in formatted)
 
+    def test_noms_eng_reconnaissables(self, pokemon: list[str]) -> None:
+        """Vérifie que quelques noms ENG iconiques sont présents."""
+        attendus = {"pikachu", "charizard", "mewtwo", "snorlax", "eevee"}
+        presents = attendus & set(pokemon)
+        assert len(presents) >= 4, f"Noms ENG manquants : {attendus - presents}"
+
 
 class TestIntegrationPokemonFr:
     """Tests d'intégration chargeant data/pokemon.txt (noms français)."""
