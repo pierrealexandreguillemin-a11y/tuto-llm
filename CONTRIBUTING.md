@@ -35,7 +35,7 @@ Ce projet suit des normes ISO strictes adaptées au contexte éducatif.
 ### ISO 29119 — Tests
 
 - **Couverture** : >= 70% sur `src/`
-- **Tests unitaires** : `pytest tests/test_core.py tests/test_data.py tests/test_training.py` (115 tests)
+- **Tests unitaires** : `pytest tests/test_core.py tests/test_data.py tests/test_training.py` (124 tests)
 - **Smoke tests** : `pytest tests/test_notebooks.py -m slow`
 - Commande complète : `pytest tests/ --cov=src --cov-fail-under=70`
 

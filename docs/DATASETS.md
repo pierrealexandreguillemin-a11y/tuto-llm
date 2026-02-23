@@ -213,7 +213,7 @@ des concepts ML intéressants pour de futurs notebooks.
 
 ## Audit qualité des données
 
-Audit réalisé le 2026-02-23 sur les 4 datasets intégrés.
+Audit réalisé le 2026-02-23 sur les 5 datasets intégrés.
 
 ### Prénoms (30 806 entrées)
 
@@ -276,8 +276,8 @@ pas de biais morphologique dominant comme les dinosaures.
 
 | Finding | Sévérité | Détail | Action |
 |---------|----------|--------|--------|
-| F-K1 : 3 noms de 3 chars | Info | Artefacts courts après nettoyage des accents et tirets. 0.3% du dataset. | Aucune. Filtrés par `MIN_POKEMON_FR_LEN=3`. |
-| F-K2 : noms FR/EN identiques | Info | ~40% des noms sont identiques en FR et EN (pikachu, lucario, etc.). | Aucune. Distribution réelle des traductions officielles. |
+| F-PK1 : 3 noms de 3 chars | Info | Artefacts courts après nettoyage des accents et tirets. 0.3% du dataset. | Aucune. Filtrés par `MIN_POKEMON_FR_LEN=3`. |
+| F-PK2 : noms FR/EN identiques | Info | ~40% des noms sont identiques en FR et EN (pikachu, lucario, etc.). | Aucune. Distribution réelle des traductions officielles. |
 
 **Verdict** : dataset propre, prêt pour l'entraînement.
 
@@ -294,7 +294,7 @@ Distribution et qualité similaires au dataset FR.
 ## Analyse de gap : mini-LLM actuel vs haiku
 
 Le mini-LLM actuel est conçu pour la génération char-level de mots
-courts (prénoms, dinosaures). Générer des haiku nécessite des
+courts (prénoms, dinosaures, Pokémon). Générer des haiku nécessite des
 modifications **structurelles** du modèle.
 
 ### 1. Vocabulaire (`vocab.py`)
@@ -523,6 +523,7 @@ from tuto_llm.data import (
 
 # Charger un dataset texte (un mot par ligne)
 noms = charger_dataset("data/prenoms.txt")
+pokemon = charger_dataset("data/pokemon.txt")
 
 # Charger un dataset CSV (haiku)
 haiku = charger_csv("data/haiku.csv")  # -> list[dict]
