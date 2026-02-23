@@ -107,9 +107,9 @@ def formater_training(mots: list[str]) -> list[str]:
     conformément au format attendu par le modèle bigramme/LLM.
 
     Args:
-        mots: Liste de mots bruts (ex: ["alice", "bob"]).
+        mots: Liste de mots bruts (ex: ["pikachu", "evoli"]).
 
     Returns:
-        Liste de mots formatés (ex: [".alice.", ".bob."]).
+        Liste de mots formatés (ex: [".pikachu.", ".evoli."]).
     """
     return [f".{mot}." for mot in mots if mot]

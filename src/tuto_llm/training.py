@@ -301,7 +301,7 @@ def calcul_loss(
     context: int,
     embed_dim: int,
 ) -> float:
-    """Loss moyenne sur un batch de mots formates (".alice.", ...).
+    """Loss moyenne sur un batch de mots formates (".pikachu.", ...).
 
     Args:
         mots_formates: Liste de mots au format ".mot." .
