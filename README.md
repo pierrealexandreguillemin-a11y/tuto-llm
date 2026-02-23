@@ -245,7 +245,7 @@ unitaires. Les deux restent synchronisés.
 
 | Dataset | Taille | Source | Usage |
 |---------|--------|--------|-------|
-| Prénoms INSEE | 30 806 | [INSEE](https://www.insee.fr/fr/statistiques/7633685) (Etalab 2.0) | Dataset principal, compatible vocab actuel |
+| Prénoms INSEE | 30 806 | [INSEE](https://www.insee.fr/fr/statistiques/7633685) (Etalab 2.0) | Dataset de référence, compatible vocab actuel |
 | Dinosaures | 1 524 | [Dvelezs94](https://gist.github.com/Dvelezs94/24bfcc8ab6042613ab5d94275e2e395a) | Dataset alternatif compact |
 | Pokémon (FR) | 1 023 | [PokéAPI](https://pokeapi.co/) ((c) Nintendo/Creatures/GAME FREAK) | Dataset principal, engageant pour le public cible |
 | Pokémon (ENG) | 1 009 | [PokéAPI](https://pokeapi.co/) ((c) Nintendo/Creatures/GAME FREAK) | Référence anglaise |
@@ -272,7 +272,7 @@ Le projet applique 6 normes ISO adaptées au contexte éducatif :
 
 Lancer tous les contrôles : `pre-commit run --all-files`
 
-## Etat du projet (v1.3.0)
+## Etat du projet (v1.4.0)
 
 - 6 notebooks complets (probabilités, loss, embeddings, attention, LLM, entraînement)
 - 124 tests, 100% coverage sur `src/`

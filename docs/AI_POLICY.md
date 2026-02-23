@@ -36,6 +36,10 @@ Tout contenu technique doit être vérifiable contre ces sources :
 4. **3Blue1Brown - Neural Networks** — Visualisations pédagogiques
    https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi
 
+5. **PokéAPI** — Source des noms de Pokémon (dataset d'entraînement)
+   https://pokeapi.co/
+   (c) Nintendo / Creatures Inc. / GAME FREAK inc. — usage éducatif uniquement
+
 ## 5. Règles anti-hallucination
 
 1. **Chaque claim technique** dans les notebooks doit correspondre

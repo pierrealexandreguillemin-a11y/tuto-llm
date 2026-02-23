@@ -311,7 +311,7 @@ modifications **structurelles** du modèle.
 
 ### 2. Fenêtre de contexte (`core.py`)
 
-- **Actuel** : ~8 (prénoms de 6 chars en moyenne)
+- **Actuel** : ~8 (Pokémon de 8 chars en moyenne)
 - **Nécessaire** : ~80 (haiku de 49 chars en moyenne, max 79)
 - **Impact** : self-attention est O(n²). Passer de context=8 à
   context=80 multiplie le calcul par **100x**.
@@ -354,13 +354,13 @@ restent nécessaires.
 
 ### Résumé du gap
 
-| Composant | Prénoms (actuel) | Haiku (nécessaire) | Facteur |
+| Composant | Pokémon (actuel) | Haiku (nécessaire) | Facteur |
 |-----------|------------------|---------------------|---------|
 | Vocabulaire | 27 tokens | ~52 tokens | 2x |
 | Contexte | 8 | 80 | 10x |
 | Calcul attention | O(512) | O(204 800) | 400x |
 | Entraînement | SGD en ligne (v1.3.0) | Adam + batching | optimisation |
-| Données | 30k mots | 10k+ haiku | nouveau |
+| Données | ~1k mots | 10k+ haiku | nouveau |
 | Type de séquence | 1 mot | 3 lignes | nouveau |
 
 ### Recommandation
@@ -381,11 +381,11 @@ Audit réalisé le 2026-02-22 sur les 6 notebooks.
 
 | # | Notebook | Modèle | Params | Dataset | Temps | Entraîne ? |
 |---|---------|--------|--------|---------|-------|------------|
-| 1 | Deviner la suite | Bigramme (comptage) | 729 compteurs | 20 prénoms codés en dur | <50ms | Non (comptage pur) |
-| 2 | Apprendre des erreurs | Bigramme NN | 729 poids | 20 prénoms codés en dur | ~2s | Oui (50 epochs) |
-| 3 | La mémoire du modèle | Feed-forward + embeddings | 891 poids | 20 prénoms codés en dur | ~10-15s | Oui (100 epochs) |
+| 1 | Deviner la suite | Bigramme (comptage) | 729 compteurs | 20 Pokémon codés en dur | <50ms | Non (comptage pur) |
+| 2 | Apprendre des erreurs | Bigramme NN | 729 poids | 20 Pokémon codés en dur | ~2s | Oui (50 epochs) |
+| 3 | La mémoire du modèle | Feed-forward + embeddings | 891 poids | 20 Pokémon codés en dur | ~10-15s | Oui (100 epochs) |
 | 4 | L'attention | Calcul manuel | 0 (pas de modèle) | "chat" (4 chars) | <1s | Non (conceptuel) |
-| 5 | Mon premier LLM | Transformer complet | 2 832 poids | 15 prénoms codés en dur | ~500ms | Non (assemblage) |
+| 5 | Mon premier LLM | Transformer complet | 2 832 poids | 20 Pokémon codés en dur | ~500ms | Non (assemblage) |
 | 6 | Entraîner le modèle | Transformer complet | 2 832 poids | ~1 000 Pokémon (inline) | **~190s** | Oui (10 epochs) |
 
 ### Décision : pourquoi ne pas augmenter les notebooks 1-5
@@ -399,7 +399,7 @@ feature pédagogique, pas une limitation :
    en temps réel. Un entraînement de 5 minutes casserait ce retour visuel.
 2. **Itération rapide** : l'élève peut modifier le code et relancer
    sans attendre. Essentiel pour le public cible (10-14 ans).
-3. **Petit dataset = traçabilité** : avec 20 prénoms, l'élève peut
+3. **Petit dataset = traçabilité** : avec 20 Pokémon, l'élève peut
    vérifier mentalement que le modèle apprend les bons patterns.
 4. **Plateau visible** : 50-100 epochs suffisent pour montrer la
    convergence. Plus d'epochs n'enseignent rien de nouveau.
@@ -459,7 +459,7 @@ niveau 2 enseignerait le "comment aller vite" (l'ingénierie).
 | Architecture | 1 couche, 1 tête, ~2 800 params | 4+ couches, 4 têtes, ~100k params |
 | Contexte | 8 caractères | 128+ caractères |
 | Vocabulaire | 27 tokens (a-z + .) | 52+ tokens (texte libre) |
-| Datasets | Prénoms, dinosaures | + haiku, fables, proverbes |
+| Datasets | Pokémon, dinosaures | + haiku, fables, proverbes |
 | Entraînement | ~190s pour ~1k mots | ~10s pour 30k mots |
 
 ### Prérequis pour le niveau 2

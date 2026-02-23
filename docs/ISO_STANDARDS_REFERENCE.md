@@ -96,5 +96,6 @@ et leur implémentation concrète.
 - [microgpt.py](https://gist.github.com/karpathy/8627fe009c40f57531cb18360106ce95) — Andrej Karpathy
 - [Vidéo "Let's build GPT"](https://www.youtube.com/watch?v=kCc8FmEb1nY) — Andrej Karpathy
 - [3Blue1Brown - Neural Networks](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
+- [PokéAPI](https://pokeapi.co/) — (c) Nintendo / Creatures Inc. / GAME FREAK inc.
 
 **Vérification** : Revue manuelle des notebooks
