@@ -211,9 +211,9 @@ class TestBackwardLlm:
             loss_m = cross_entropy_loss(probas_m, cible)
             grad_num = (loss_p - loss_m) / (2 * eps)
             grad_ana = grads["d_w_out"][v_idx][d_idx]
-            assert grad_num == pytest.approx(
-                grad_ana, abs=1e-3
-            ), f"W_out[{v_idx}][{d_idx}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            assert grad_num == pytest.approx(grad_ana, abs=1e-3), (
+                f"W_out[{v_idx}][{d_idx}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            )
 
     def test_gradient_w1_numerique(self, model_kwargs: dict) -> None:
         """Verification numerique pour W1."""
@@ -234,9 +234,9 @@ class TestBackwardLlm:
             loss_m = cross_entropy_loss(probas_m, cible)
             grad_num = (loss_p - loss_m) / (2 * eps)
             grad_ana = grads["d_w1"][j_idx][d_idx]
-            assert grad_num == pytest.approx(
-                grad_ana, abs=1e-3
-            ), f"W1[{j_idx}][{d_idx}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            assert grad_num == pytest.approx(grad_ana, abs=1e-3), (
+                f"W1[{j_idx}][{d_idx}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            )
 
     def test_gradient_wq_numerique(self, model_kwargs: dict) -> None:
         """Verification numerique pour Wq (attention)."""
@@ -257,9 +257,9 @@ class TestBackwardLlm:
             loss_m = cross_entropy_loss(probas_m, cible)
             grad_num = (loss_p - loss_m) / (2 * eps)
             grad_ana = grads["d_wq"][r][c]
-            assert grad_num == pytest.approx(
-                grad_ana, abs=1e-3
-            ), f"Wq[{r}][{c}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            assert grad_num == pytest.approx(grad_ana, abs=1e-3), (
+                f"Wq[{r}][{c}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            )
 
     def test_gradient_tok_emb_numerique(self, model_kwargs: dict) -> None:
         """Verification numerique pour les token embeddings."""
@@ -282,9 +282,9 @@ class TestBackwardLlm:
             loss_m = cross_entropy_loss(probas_m, cible)
             grad_num = (loss_p - loss_m) / (2 * eps)
             grad_ana = grads["d_tok_emb"][tok_id][d_idx]
-            assert grad_num == pytest.approx(
-                grad_ana, abs=1e-3
-            ), f"tok_emb[{tok_id}][{d_idx}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            assert grad_num == pytest.approx(grad_ana, abs=1e-3), (
+                f"tok_emb[{tok_id}][{d_idx}]: num={grad_num:.6f} ana={grad_ana:.6f}"
+            )
 
     def test_gradient_sequence_un_token(self, model_kwargs: dict) -> None:
         """Backward fonctionne avec une sequence d'un seul token."""
