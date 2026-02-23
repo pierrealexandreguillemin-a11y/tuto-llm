@@ -167,7 +167,7 @@ def generer_llm(
     context: int,
     embed_dim: int,
 ) -> str:
-    """Génère un prénom lettre par lettre avec le mini-LLM."""
+    """Génère un nom lettre par lettre avec le mini-LLM."""
     ids = [char_to_id[c] for c in debut]
     resultat = debut
 
