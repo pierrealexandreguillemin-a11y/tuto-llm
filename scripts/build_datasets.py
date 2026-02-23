@@ -18,12 +18,15 @@ Sources:
 
 from __future__ import annotations
 
+import argparse
 import csv
 import io
 import json
+import time
 import unicodedata
 import urllib.request
 import zipfile
+from collections.abc import Callable
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -88,7 +91,7 @@ def download(url: str, user_agent: str | None = None) -> bytes:
 
 def build_dinosaures() -> None:
     """Télécharge et nettoie le dataset de dinosaures."""
-    print("\n[1/5] Dinosaures")
+    print("\n[dinosaures] Dinosaures")
     raw = download(DINOS_URL).decode("utf-8")
 
     dinos: set[str] = set()
@@ -107,7 +110,7 @@ def build_dinosaures() -> None:
 
 def build_prenoms() -> None:
     """Télécharge et nettoie le dataset de prénoms INSEE."""
-    print("\n[2/5] Prénoms INSEE")
+    print("\n[prenoms] Prénoms INSEE")
     zip_data = download(PRENOMS_URL)
 
     with zipfile.ZipFile(io.BytesIO(zip_data)) as zf:
@@ -142,7 +145,7 @@ def build_prenoms() -> None:
 
 def build_haiku() -> None:
     """Télécharge un échantillon de haiku."""
-    print("\n[3/5] Haiku")
+    print("\n[haiku] Haiku")
     raw = download(HAIKU_URL).decode("utf-8")
 
     reader = csv.reader(io.StringIO(raw))
@@ -166,7 +169,7 @@ def build_haiku() -> None:
 
 def build_pokemon_eng() -> None:
     """Télécharge les noms de base des Pokémon (anglais) depuis PokéAPI."""
-    print("\n[4/5] Pokémon (anglais)")
+    print("\n[pokemon_eng] Pokémon (anglais)")
     raw = download(POKEAPI_URL, user_agent="TutoLLM/1.0")
     data = json.loads(raw)
 
@@ -198,9 +201,7 @@ def build_pokemon_fr() -> None:
     Utilise l'endpoint pokemon-species qui fournit les traductions.
     Nécessite une requête par espèce (~1 025 requêtes).
     """
-    import time as _time
-
-    print("\n[5/5] Pokémon (français)")
+    print("\n[pokemon_fr] Pokémon (français)")
     raw = download(POKEAPI_SPECIES_URL, user_agent="TutoLLM/1.0")
     listing = json.loads(raw)
     species_urls = [entry["url"] for entry in listing["results"]]
@@ -237,7 +238,7 @@ def build_pokemon_fr() -> None:
         # Progress et rate limiting
         if (i + 1) % 100 == 0:
             print(f"  ... {i + 1}/{len(species_urls)} ({len(noms)} noms)")
-        _time.sleep(0.05)
+        time.sleep(0.05)
 
     output = DATA_DIR / "pokemon.txt"
     output.write_text(
@@ -252,16 +253,34 @@ def build_pokemon_fr() -> None:
 # ---------------------------------------------------------------------------
 
 
+BUILDERS: dict[str, Callable[[], None]] = {
+    "dinosaures": build_dinosaures,
+    "prenoms": build_prenoms,
+    "haiku": build_haiku,
+    "pokemon_eng": build_pokemon_eng,
+    "pokemon_fr": build_pokemon_fr,
+}
+
+
 def main() -> None:
     """Point d'entrée principal."""
+    parser = argparse.ArgumentParser(
+        description="Construit les datasets dans data/.",
+    )
+    parser.add_argument(
+        "datasets",
+        nargs="*",
+        choices=[*BUILDERS, []],
+        help="Datasets à construire (défaut : tous). Ex: pokemon_fr prenoms",
+    )
+    args = parser.parse_args()
+
     print(f"Répertoire de sortie : {DATA_DIR}")
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    build_dinosaures()
-    build_prenoms()
-    build_haiku()
-    build_pokemon_eng()
-    build_pokemon_fr()
+    targets = args.datasets or list(BUILDERS)
+    for name in targets:
+        BUILDERS[name]()
 
     print("\nTerminé. Fichiers générés :")
     for f in sorted(DATA_DIR.iterdir()):
