@@ -16,7 +16,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tuto-llm"
-version = "1.1.0"
+version = "1.6.0"
 description = "Cours progressif pour créer un mini-LLM (10-14 ans)"
 requires-python = ">=3.10"
 license = "MIT"
@@ -98,6 +98,6 @@ exclude_lines = [
 # =============================================================================
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.0.0"
+version = "1.6.0"
 tag_format = "v$version"
 allowed_prefixes = ["build", "bump", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test"]

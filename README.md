@@ -3,6 +3,15 @@
 [![Ouvrir dans JupyterLite](https://img.shields.io/badge/Ouvrir-JupyterLite-blue?logo=jupyter)](https://mon-atelier-ia.github.io/tuto-llm/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mon-atelier-ia/tuto-llm/blob/master/notebooks/01_deviner_la_suite.ipynb)
 
+| # | Notebook | Colab |
+|---|---------|-------|
+| 1 | Deviner la suite | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mon-atelier-ia/tuto-llm/blob/master/notebooks/01_deviner_la_suite.ipynb) |
+| 2 | Apprendre des erreurs | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mon-atelier-ia/tuto-llm/blob/master/notebooks/02_apprendre_des_erreurs.ipynb) |
+| 3 | La memoire du modele | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mon-atelier-ia/tuto-llm/blob/master/notebooks/03_la_memoire_du_modele.ipynb) |
+| 4 | L'attention | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mon-atelier-ia/tuto-llm/blob/master/notebooks/04_lattention.ipynb) |
+| 5 | Mon premier LLM | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mon-atelier-ia/tuto-llm/blob/master/notebooks/05_mon_premier_llm.ipynb) |
+| 6 | Entrainer le modele | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mon-atelier-ia/tuto-llm/blob/master/notebooks/06_entrainer_le_modele.ipynb) |
+
 > Cours progressif pour comprendre et construire un modèle de langage,
 > inspiré de [microgpt.py](https://gist.github.com/karpathy/8627fe009c40f57531cb18360106ce95) d'Andrej Karpathy.
 

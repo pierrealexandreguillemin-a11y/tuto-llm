@@ -4,6 +4,94 @@ Toutes les modifications notables de ce projet sont documentées ici.
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionné selon [Conventional Commits](https://www.conventionalcommits.org/fr/).
 
+## [1.6.0] - 2026-02-24
+
+Redesign UX des exercices : bannieres HTML, audit UI/UX, corrections WCAG.
+
+### Added
+
+- **`exercice()` helper** : fonction HTML inline dans chaque notebook,
+  affiche une banniere bleue avec titre, consigne et "Ce que tu vas voir".
+- **`# ==== MODIFIE ICI ====`** : delimiteurs visuels encadrant la zone
+  editable dans chaque cellule exercice (inspire de nbgrader).
+- **Rappel Shift+Entree** dans le premier exercice de chaque notebook.
+- **`_style_code()` helper** : style inline pour les balises `<code>`
+  dans les bannieres (fond bleu clair, border-radius).
+
+### Changed
+
+- **Bannieres exercices** : couleur verte (#4CAF50) remplacee par bleu
+  (#1565c0) pour eviter la confusion avec le feedback `verifier()` vert.
+  Audit UX/UI complet (ux-design-guardian + ui-design-guardian).
+- **`verifier()`** : border-left passe de 4px a 5px, font-family
+  system-ui, try/except pour evaluation robuste du booleen.
+- **Gradient de completion** : assombri (3949ab/6a1b9a) pour conformite
+  WCAG AA (contraste 4.5:1 sur texte blanc).
+- **Margin** : -5px corrige en 4px pour rendu stable cross-platform.
+- **Separateur** : `--` remplace par em dash `\u2014`, espaces insecables.
+- **18 cellules markdown exercice supprimees** : remplacees par l'appel
+  `exercice()` au debut de la cellule code (moins de scroll).
+
+### Fixed
+
+- **`tests/test_notebook_outputs.py`** : patterns de detection mis a jour
+  (border-left 4px -> 5px) pour correspondre au nouveau `verifier()`.
+
+### Metrics
+
+| Metrique | Valeur |
+|----------|--------|
+| Tests | 154 pass (124 unitaires + 6 smoke + 24 output) |
+| Couverture src/ | 100% (seuil : 70%) |
+| Erreurs ruff | 0 |
+| Erreurs mypy | 0 |
+| Exercices interactifs | 18 (4+3+3+2+3+3) |
+| Bannieres HTML | 18 |
+
+---
+
+## [1.5.0] - 2026-02-23
+
+Exercices interactifs, visualisations HTML, tests output ISO 29119.
+
+### Added
+
+- **18 exercices interactifs** repartis sur 6 notebooks (4+3+3+2+3+3)
+  avec variables modifiables, `verifier()` vert/jaune, compteur de
+  progression.
+- **16 visualisations HTML** via 7 fonctions `afficher_*()` avec
+  marqueur `<!-- tuto-viz -->` pour detection automatisee.
+- **`tests/test_notebook_outputs.py`** : 24 tests ISO 29119 validant
+  les sorties des notebooks (verifier, aide, visualisations, compteurs).
+- **Rappel Jupyter** en tete de chaque notebook (Shift+Entree, ordre).
+- **Separateurs visuels** `---` entre sections dans chaque notebook.
+- **`docs/PEDAGOGICAL_PRACTICES.md`** : conventions pedagogiques
+  documentees (7 sources : Capytale, EPFL, jupyter4edu, Callysto,
+  ML for Kids, Kaggle Learn).
+
+### Changed
+
+- **Notebooks 01-06** : ajout de Pokémon FR comme dataset principal
+  (remplace prenoms dans les exemples inline).
+- **NB06** : entrainement sur ~1 000 Pokemon FR (inline) au lieu de
+  10 000 prenoms (fichier externe). Standalone pour JupyterLite.
+- **Documentation ISO** : README, AI_POLICY, ISO_STANDARDS_REFERENCE
+  mis a jour avec compteurs exercices et visualisations.
+
+### Metrics
+
+| Metrique | Valeur |
+|----------|--------|
+| Tests | 154 pass (124 unitaires + 6 smoke + 24 output) |
+| Couverture src/ | 100% (seuil : 70%) |
+| Erreurs ruff | 0 |
+| Erreurs mypy | 0 |
+| Exercices interactifs | 18 (4+3+3+2+3+3) |
+| Visualisations HTML | 16 |
+| Notebooks executables | 6/6 |
+
+---
+
 ## [1.4.0] - 2026-02-22
 
 Intégration du dataset Pokémon pré-généré, préparation de l'héritage
