@@ -52,8 +52,8 @@ _TRAINING_NOTEBOOKS = {"06_entrainer_le_modele.ipynb"}
 
 # HTML patterns for feedback detection (must be specific to verifier() output)
 # verifier() green includes the checkmark and "Progression" text
-_VERIFIER_GREEN = "background:#d4edda;border-left:4px solid #28a745"
-_VERIFIER_YELLOW = "background:#fff3cd;border-left:4px solid #ffc107"
+_VERIFIER_GREEN = "background:#d4edda;border-left:5px solid #28a745"
+_VERIFIER_YELLOW = "background:#fff3cd;border-left:5px solid #ffc107"
 
 # Positive marker for visualization outputs (inserted by all afficher_* functions)
 _VIZ_MARKER = "<!-- tuto-viz -->"
