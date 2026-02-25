@@ -57,7 +57,7 @@ Voir Section 4 pour les justifications des rejets.
    - 8.4 Support GPU
    - 8.5 Transition vers nanoGPT
    - 8.6 Ressources transversales
-9. [References](#9-references) (41 sources)
+9. [References](#9-references) (43 sources)
 
 ---
 
@@ -476,6 +476,8 @@ avec montee en echelle, vocabulaire etendu et support GPU.
 | [educational-transformer](https://github.com/ZSvedic/educational-transformer) | Transformer educatif PyTorch, commente, s'entraine en ~2s sur MacBook M1 | **Destination ideale.** Temps d'entrainement de ~2s = exactement l'objectif. |
 | [picoGPT](https://github.com/jaymody/picoGPT) | GPT-2 en ~60 lignes NumPy, inference avec vrais poids | Pont intermediaire Python pur -> PyTorch. Valide l'objectif ~50 lignes. |
 | [microGPT_webEdu](https://github.com/tanpuekai/microGPT_webEdu) | Interface web interactive pour microGPT de Karpathy | Inspiration pour comparaison visuelle Python pur vs PyTorch. |
+| [microgpt-visualizer](https://github.com/enescang/microgpt-visualizer) | 5 panels interactifs (tokenizer, embeddings heatmap 16D, forward pass, training, inference) + autograd engine. [Demo](https://microgpt.enescang.dev/) | Visualisation complete du pipeline GPT, reference pour les schemas pedagogiques. |
+| [microGPT_Visualizer](https://github.com/Sjs2332/microGPT_Visualizer) | Explainer interactif du microGPT de Karpathy : attention causale multi-tetes (n_embd=16, n_head=4, 4 064 params) | Pipeline en 3 etapes avec sidebar de reference (architecture, autograd, MLP, training, inference). |
 
 **Trajectoire recommandee** : microGPT (Python pur, point de depart)
 -> picoGPT (NumPy, pont intermediaire) -> educational-transformer
@@ -676,3 +678,10 @@ CPU Python boucles for   ->   nanoGPT (GPU, detection auto CPU/CUDA)
 
 41. **litGPT** -- 20+ LLM from scratch, Lightning AI :
     https://github.com/Lightning-AI/litgpt
+
+42. **microgpt-visualizer** -- enescang, 5 panels interactifs (tokenizer, embeddings, forward, training, inference) :
+    https://github.com/enescang/microgpt-visualizer
+    Demo : https://microgpt.enescang.dev/
+
+43. **microGPT_Visualizer** -- Sjs2332, attention causale multi-tetes :
+    https://github.com/Sjs2332/microGPT_Visualizer
