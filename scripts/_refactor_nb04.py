@@ -1,0 +1,630 @@
+#!/usr/bin/env python3
+"""Refactor NB04: L'attention — pedagogical overhaul.
+
+Changes:
+- Interactive BertViz-style attention visualization
+- Interactive causal mask (click to highlight)
+- Box-drawing exercise delimiters
+- Markdown before every code cell
+- Inline comments at 30%+
+- Observation questions after demos
+"""
+
+import json
+import re
+
+
+def md(source):
+    return {"cell_type": "markdown", "metadata": {}, "source": source}
+
+
+def code(source):
+    return {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": source,
+    }
+
+
+# Read existing notebook
+with open("notebooks/04_lattention.ipynb", encoding="utf-8") as f:
+    nb = json.load(f)
+
+# Extract verifier and exercice from original cell-1
+original_cell1 = "".join(
+    nb["cells"][1]["source"]
+    if isinstance(nb["cells"][1]["source"], list)
+    else [nb["cells"][1]["source"]]
+)
+verifier_match = re.search(
+    r"(def verifier\(.*?\n(?:(?:    .*|)\n)*)", original_cell1, re.MULTILINE
+)
+exercice_match = re.search(
+    r"(def exercice\(.*?\n(?:(?:    .*|)\n)*)", original_cell1, re.MULTILINE
+)
+verifier_code = verifier_match.group(1).rstrip("\n") if verifier_match else ""
+exercice_code = exercice_match.group(1).rstrip("\n") if exercice_match else ""
+
+cells = []
+
+# ----------------------------------------------------------------
+# CELL: Intro (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Rappel** : clique sur une cellule grise, puis **Shift + Entree** pour l'executer.\n"
+        "> Execute les cellules **dans l'ordre** de haut en bas.\n"
+        "\n"
+        "---\n"
+        "\n"
+        "# Lecon 4 : L'attention\n"
+        "\n"
+        "## L'ingredient secret des GPT\n"
+        "\n"
+        'Imagine que tu lis la phrase : "Le **chat** noir dort sur le **canape**."\n'
+        "\n"
+        'Si on te demande "Ou dort le chat ?", ton cerveau fait automatiquement\n'
+        'le lien entre "dort", "chat" et "canape" -- meme si ces mots ne sont\n'
+        "pas cote a cote.\n"
+        "\n"
+        "C'est exactement ce que fait le **mecanisme d'attention** :\n"
+        "il permet au modele de regarder **n'importe quel** element du passe,\n"
+        "pas seulement les derniers."
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Infrastructure (code)
+# ----------------------------------------------------------------
+infra = (
+    "# ============================================================\n"
+    "# Cellule d'initialisation \\u2014 execute sans lire (Shift+Entree)\n"
+    "# ============================================================\n"
+    "\n"
+    "import json\n"
+    "import uuid\n"
+    "\n"
+    "from IPython.display import HTML, display\n"
+    "\n"
+    "_exercices_faits = set()\n"
+    "_NB_TOTAL = 2\n"
+    "\n"
+    "\n" + verifier_code + "\n"
+    "\n"
+    "\n" + exercice_code + "\n"
+    "\n"
+    "\n"
+    # afficher_attention — BertViz-style lines between tokens
+    'def afficher_attention(poids, positions, titre="Poids d\'attention"):\n'
+    '    """Attention BertViz-style : lignes entre tokens, opacite = poids."""\n'
+    "    n = len(positions)\n"
+    "    col_w, row_h = 60, 36\n"
+    "    svg_w = col_w * n + 40\n"
+    "    svg_h = row_h * 3 + 20\n"
+    "    # Tokens en haut (Keys) et token query en bas\n"
+    '    elems = ""\n'
+    "    for i, c in enumerate(positions):\n"
+    "        x = 20 + i * col_w + col_w // 2\n"
+    "        # Token label en haut\n"
+    "        elems += (\n"
+    '            f\'<text x="{x}" y="20" text-anchor="middle" \'\n'
+    '            f\'font-size="16" font-weight="bold" fill="#333">{c}</text>\'\n'
+    "        )\n"
+    "        # Ligne de connexion : opacite = poids d'attention\n"
+    "        w = poids[i]\n"
+    "        opacity = max(w, 0.05)\n"
+    "        stroke_w = 1 + w * 8  # epaisseur proportionnelle\n"
+    "        elems += (\n"
+    '            f\'<line x1="{x}" y1="28" x2="{svg_w // 2}" y2="{svg_h - 30}" \'\n'
+    '            f\'stroke="#1565c0" stroke-width="{stroke_w:.1f}" \'\n'
+    '            f\'stroke-opacity="{opacity:.2f}" stroke-linecap="round"/>\'\n'
+    "        )\n"
+    "        # Poids en pourcentage sous le token\n"
+    "        elems += (\n"
+    '            f\'<text x="{x}" y="42" text-anchor="middle" \'\n'
+    '            f\'font-size="11" fill="#555">{w:.0%}</text>\'\n'
+    "        )\n"
+    '    # Label "query" en bas\n'
+    "    elems += (\n"
+    '        f\'<text x="{svg_w // 2}" y="{svg_h - 10}" text-anchor="middle" \'\n'
+    '        f\'font-size="14" font-weight="bold" fill="#1565c0">query</text>\'\n'
+    "    )\n"
+    "    display(HTML(\n"
+    "        f'<!-- tuto-viz -->'\n"
+    "        f'<div style=\"margin:8px 0\"><b>{titre}</b>'\n"
+    '        f\'<svg width="{svg_w}" height="{svg_h}" \'\n'
+    "        f'style=\"margin-top:4px;display:block\">{elems}</svg></div>'\n"
+    "    ))\n"
+    "\n"
+    "\n"
+    # afficher_masque_causal — interactive click
+    'def afficher_masque_causal(mot, titre="Masque causal"):\n'
+    '    """Masque causal interactif : clic sur une position = highlight ce qu\'elle peut voir."""\n'
+    "    uid = uuid.uuid4().hex[:8]\n"
+    "    n = len(mot)\n"
+    "    lettres_js = json.dumps(list(mot))\n"
+    "    # Construire le tableau HTML\n"
+    '    header = "".join(\n'
+    "        f'<th style=\"padding:6px 10px;font-size:1.1em\">{c}</th>' for c in mot\n"
+    "    )\n"
+    '    rows = ""\n'
+    "    for i, c in enumerate(mot):\n"
+    '        row_cells = ""\n'
+    "        for j in range(n):\n"
+    "            if j <= i:\n"
+    "                row_cells += (\n"
+    '                    f\'<td data-r="{i}" data-c="{j}" style="padding:6px 10px;\'\n'
+    "                    f'background:#d4edda;text-align:center;border:1px solid #ccc;'\n"
+    "                    f'cursor:pointer\">\\u2705</td>'\n"
+    "                )\n"
+    "            else:\n"
+    "                row_cells += (\n"
+    '                    f\'<td data-r="{i}" data-c="{j}" style="padding:6px 10px;\'\n'
+    "                    f'background:#f8d7da;text-align:center;border:1px solid #ccc;'\n"
+    "                    f'cursor:pointer\">\\u274c</td>'\n"
+    "                )\n"
+    "        rows += (\n"
+    "            f'<tr><th style=\"padding:6px 10px;font-size:1.1em\">{c}</th>{row_cells}</tr>'\n"
+    "        )\n"
+    "    display(HTML(\n"
+    "        f'<!-- tuto-viz -->'\n"
+    "        f'<div style=\"margin:8px 0\"><b>{titre}</b>'\n"
+    '        f\'<table id="m{uid}" style="border-collapse:collapse;margin-top:4px">\'\n'
+    "        f'<tr><th></th>{header}</tr>{rows}</table>'\n"
+    '        f\'<div id="mi{uid}" style="margin-top:4px;color:#555;font-size:0.9em;min-height:1.3em">\'\n'
+    "        f'Clique sur une ligne pour voir ce que cette lettre peut regarder</div></div>'\n"
+    "        f'<script>(function(){{\"use strict\";'\n"
+    "        f'var t=document.getElementById(\"m{uid}\"),'\n"
+    "        f'info=document.getElementById(\"mi{uid}\"),'\n"
+    "        f'L={lettres_js};'\n"
+    "        f't.addEventListener(\"click\",function(e){{'\n"
+    "        f'var th=e.target.closest(\"th\");'\n"
+    "        f'var td=e.target.closest(\"td[data-r]\");'\n"
+    "        f'if(!th&&!td)return;'\n"
+    "        f'var r=td?+td.dataset.r:null;'\n"
+    "        f'if(th){{var tr=th.parentElement;r=[].indexOf.call(tr.parentElement.children,tr)-1}}'\n"
+    "        f'if(r<0||r>=L.length)return;'\n"
+    "        f't.querySelectorAll(\"td[data-r]\").forEach(function(d){{'\n"
+    '        f\'d.style.outline="";d.style.fontWeight=""}});\'\n'
+    "        f't.querySelectorAll(\"td[data-r=\\'\" +r+\"\\']\" ).forEach(function(d){{'\n"
+    '        f\'d.style.outline="2px solid #1565c0";d.style.fontWeight="bold"}});\'\n'
+    "        f'var visible=[];for(var j=0;j<=r;j++)visible.push(L[j]);'\n"
+    '        f\'info.textContent=L[r]+" peut voir : ["+visible.join(", ")+"]"\'\n'
+    "        f'}})'\n"
+    "        f'}})();</script>'\n"
+    "    ))\n"
+    "\n"
+    "\n"
+    'print("Outils de visualisation charges !")'
+)
+cells.append(code(infra))
+
+# ----------------------------------------------------------------
+# CELL: Comment ca marche (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "---\n"
+        "## Comment ca marche ?\n"
+        "\n"
+        "Pour chaque lettre, le modele se pose 3 questions :\n"
+        "\n"
+        '1. **Query (Q)** : "Qu\'est-ce que je cherche ?" (ce que cette lettre a besoin de savoir)\n'
+        "2. **Key (K)** : \"Qu'est-ce que j'offre ?\" (ce que cette lettre peut apporter)\n"
+        '3. **Value (V)** : "Quelle info je transmets ?" (l\'information reelle)\n'
+        "\n"
+        "L'attention = comparer chaque Query avec toutes les Keys pour trouver\n"
+        "les lettres les plus utiles, puis collecter leurs Values."
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: MD before embeddings setup
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        'Prenons le mot **"chat"** comme exemple. Chaque lettre a un\n'
+        "**embedding** (un petit vecteur de 4 nombres) :"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Setup embeddings (code)
+# ----------------------------------------------------------------
+cells.append(
+    code(
+        "import math\n"
+        "import random\n"
+        "\n"
+        "random.seed(42)\n"
+        "\n"
+        "# Notre mot d'exemple\n"
+        'mot = "chat"\n'
+        "print(f\"Mot : '{mot}'\")\n"
+        'print(f"Positions : {list(enumerate(mot))}")\n'
+        "print()\n"
+        "\n"
+        "# Chaque lettre a un embedding (simplifie a 4 dimensions)\n"
+        "DIM = 4\n"
+        "emb = {\n"
+        "    \"c\": [1.0, 0.0, 0.5, -0.3],   # embedding de 'c'\n"
+        "    \"h\": [0.2, 0.8, -0.1, 0.5],   # embedding de 'h'\n"
+        "    \"a\": [0.5, 0.3, 0.9, 0.1],    # embedding de 'a'\n"
+        "    \"t\": [-0.3, 0.6, 0.2, 0.8],   # embedding de 't'\n"
+        "}\n"
+        "\n"
+        "for c, v in emb.items():\n"
+        "    print(f\"  '{c}' -> {v}\")  # 4 nombres par lettre"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: MD before attention computation
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "### Calculer les scores d'attention\n"
+        "\n"
+        'Calculons l\'attention pour la lettre **"t"** (derniere position).\n'
+        "Question : quelles lettres precedentes sont importantes pour predire\n"
+        'ce qui vient apres "t" dans "chat" ?'
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Compute attention scores (code)
+# ----------------------------------------------------------------
+cells.append(
+    code(
+        "# Pour simplifier, on utilise les embeddings directement comme Q, K, V\n"
+        "# (en vrai, il y a des matrices de transformation)\n"
+        "\n"
+        "\n"
+        "def produit_scalaire(a, b):\n"
+        '    """Mesure la similarite entre deux vecteurs."""\n'
+        "    return sum(x * y for x, y in zip(a, b, strict=False))\n"
+        "\n"
+        "\n"
+        "def softmax(scores):\n"
+        '    """Transforme les scores en probabilites."""\n'
+        "    max_s = max(scores)\n"
+        "    exps = [math.exp(s - max_s) for s in scores]\n"
+        "    total = sum(exps)\n"
+        "    return [e / total for e in exps]\n"
+        "\n"
+        "\n"
+        "# La \"query\" de 't' = son embedding\n"
+        "query = emb[\"t\"]  # Ce que 't' cherche\n"
+        "\n"
+        "# Comparer avec toutes les lettres (y compris elle-meme)\n"
+        "scores = []\n"
+        "for c in mot:\n"
+        "    key = emb[c]  # Ce que chaque lettre offre\n"
+        "    # Produit scalaire puis division par sqrt(DIM)\n"
+        "    # On divise par sqrt(DIM) pour eviter des scores trop grands\n"
+        "    score = produit_scalaire(query, key) / math.sqrt(DIM)\n"
+        "    scores.append(score)\n"
+        "\n"
+        "print(\"Scores d'attention pour 't' :\")\n"
+        "for c, s in zip(mot, scores, strict=False):\n"
+        "    print(f\"  '{c}' : {s:.2f}\")\n"
+        "\n"
+        "# Transformer en probabilites avec softmax\n"
+        "poids_attention = softmax(scores)\n"
+        "print()\n"
+        'print("Poids d\'attention (apres softmax) :")\n'
+        "for c, w in zip(mot, poids_attention, strict=False):\n"
+        '    barre = "#" * int(w * 30)  # barre proportionnelle\n'
+        "    print(f\"  '{c}' : {w:.1%} {barre}\")\n"
+        "\n"
+        "print()\n"
+        "print(\"Le modele 'regarde' plus les lettres avec un poids eleve !\")\n"
+        "\n"
+        "# Visualisation BertViz-style : lignes entre tokens\n"
+        "afficher_attention(\n"
+        "    poids_attention, list(mot), titre=\"Poids d'attention pour 't' dans 'chat'\"\n"
+        ")"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Exercise 1 — change query letter (code)
+# ----------------------------------------------------------------
+cells.append(
+    code(
+        "exercice(\n"
+        "    1,\n"
+        '    "Change la lettre qui pose la question",\n'
+        '    \'Change <code>ma_lettre</code> ci-dessous, puis <b>Shift + Entree</b> (essaie <code>"c"</code>, <code>"h"</code> ou <code>"a"</code>).\',\n'
+        "    \"Les scores d'attention changent : chaque lettre 'regarde' differemment.\",\n"
+        ")\n"
+        "\n"
+        "# \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n"
+        "# \u2551  A TOI DE JOUER !                    \u2551\n"
+        "# \u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563\n"
+        "\n"
+        'ma_lettre = "t"  # <-- Essaie "c", "h" ou "a" !\n'
+        "\n"
+        "# \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n"
+        "\n"
+        "if ma_lettre not in emb:\n"
+        "    print(f\"Erreur : '{ma_lettre}' n'est pas dans le mot 'chat'.\")\n"
+        '    print("Choisis c, h, a ou t.")\n'
+        "else:\n"
+        "    query_test = emb[ma_lettre]\n"
+        "    scores_test = []\n"
+        "    for c in mot:\n"
+        "        key = emb[c]\n"
+        "        score = produit_scalaire(query_test, key) / math.sqrt(DIM)\n"
+        "        scores_test.append(score)\n"
+        "    poids_test = softmax(scores_test)\n"
+        "    print(f\"Poids d'attention quand '{ma_lettre}' pose la question :\")\n"
+        "    for c, w in zip(mot, poids_test, strict=False):\n"
+        '        barre = "#" * int(w * 30)\n'
+        "        print(f\"  '{c}' : {w:.1%} {barre}\")\n"
+        "\n"
+        "    # Visualisation BertViz-style\n"
+        "    afficher_attention(\n"
+        "        poids_test,\n"
+        "        list(mot),\n"
+        "        titre=f\"Poids d'attention quand '{ma_lettre}' pose la question\",\n"
+        "    )\n"
+        "\n"
+        "# Validation\n"
+        "verifier(\n"
+        "    1,\n"
+        '    ma_lettre != "t",\n'
+        '    "Bravo ! Tu as change la lettre qui pose la question.",\n'
+        "    \"Change ma_lettre pour une autre lettre du mot 'chat' (c, h ou a).\",\n"
+        ")"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: MD transition to Values collection
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "### Collecter l'information (les Values)\n"
+        "\n"
+        "L'attention a choisi les lettres importantes. Maintenant on collecte\n"
+        "leur information : on fait une **somme ponderee** des Values.\n"
+        "\n"
+        "Chaque Value est multipliee par son poids d'attention, puis on additionne :"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Collect Values (code)
+# ----------------------------------------------------------------
+cells.append(
+    code(
+        "# Somme ponderee des Values : chaque lettre contribue\n"
+        "# proportionnellement a son poids d'attention\n"
+        "resultat = [0.0] * DIM  # vecteur resultat (meme taille que les embeddings)\n"
+        "\n"
+        "for c, w in zip(mot, poids_attention, strict=False):\n"
+        "    value = emb[c]  # l'information de cette lettre\n"
+        "    for d in range(DIM):\n"
+        "        resultat[d] += w * value[d]  # poids x valeur\n"
+        "\n"
+        'print("Vecteur de sortie de l\'attention :")\n'
+        "print(f\"  {[f'{x:.2f}' for x in resultat]}\")\n"
+        "print()\n"
+        'print("Ce vecteur combine l\'information de toutes les lettres,")\n'
+        'print("en donnant plus de poids aux lettres les plus pertinentes.")\n'
+        "print()\n"
+        'print("C\'est cette information qui sera utilisee pour predire")\n'
+        'print("la lettre suivante !")'
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Observation after Values (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "**Qu'est-ce que tu remarques ?**\n"
+        "\n"
+        "Le resultat combine les infos de toutes les lettres.\n"
+        "Lesquelles ont le plus contribue ? Regarde les poids d'attention\n"
+        "ci-dessus pour trouver la reponse !\n"
+        "\n"
+        "---"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Causal mask (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "## Attention causale : pas de triche !\n"
+        "\n"
+        "Regle importante : quand le modele predit la lettre suivante,\n"
+        "il **ne peut pas regarder le futur** -- seulement le passe.\n"
+        "\n"
+        "```\n"
+        "Pour predire apres 'c' : peut regarder [c]\n"
+        "Pour predire apres 'h' : peut regarder [c, h]\n"
+        "Pour predire apres 'a' : peut regarder [c, h, a]\n"
+        "Pour predire apres 't' : peut regarder [c, h, a, t]\n"
+        "```\n"
+        "\n"
+        "On appelle ca le **masque causal**. C'est ce qui fait de GPT un modele\n"
+        "**auto-regressif** : il genere un token a la fois, de gauche a droite.\n"
+        "\n"
+        "**Clique sur une ligne** du tableau pour voir ce que chaque lettre peut regarder :"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Visualize causal mask (code)
+# ----------------------------------------------------------------
+cells.append(
+    code(
+        "# Affichons le masque causal en texte\n"
+        "print(\"Masque causal pour 'chat' :\")\n"
+        "print()\n"
+        'print("          c    h    a    t")\n'
+        "for i, c in enumerate(mot):\n"
+        '    row = ""\n'
+        "    for j in range(len(mot)):\n"
+        "        if j <= i:      # peut regarder (passe + soi-meme)\n"
+        '            row += "  OK "\n'
+        "        else:            # interdit (futur)\n"
+        '            row += "  -- "\n'
+        '    print(f"  {c} : {row}")\n'
+        "\n"
+        "print()\n"
+        'print("OK = peut regarder, -- = interdit (c\'est le futur)")\n'
+        "\n"
+        "# Masque causal interactif (clique sur une ligne !)\n"
+        "afficher_masque_causal(mot, titre=\"Masque causal pour 'chat'\")"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Exercise 2 — change word (code)
+# ----------------------------------------------------------------
+cells.append(
+    code(
+        "exercice(\n"
+        "    2,\n"
+        '    "Change le mot",\n'
+        '    \'Change <code>mon_mot</code> ci-dessous (essaie <code>"plume"</code>, <code>"arbre"</code> ou ton prenom).\',\n'
+        '    "Le masque s\'adapte a la longueur du mot.",\n'
+        ")\n"
+        "\n"
+        "# \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n"
+        "# \u2551  A TOI DE JOUER !                    \u2551\n"
+        "# \u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563\n"
+        "\n"
+        'mon_mot = "chat"  # <-- Essaie "plume", "arbre" ou ton prenom !\n'
+        "\n"
+        "# \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n"
+        "\n"
+        "print(f\"Masque causal pour '{mon_mot}' :\")\n"
+        "print()\n"
+        'header = "     " + "".join(f"  {c}  " for c in mon_mot)\n'
+        "print(header)\n"
+        "for i, c in enumerate(mon_mot):\n"
+        '    row = ""\n'
+        "    for j in range(len(mon_mot)):\n"
+        "        if j <= i:\n"
+        '            row += "  OK "\n'
+        "        else:\n"
+        '            row += "  -- "\n'
+        '    print(f"  {c} : {row}")\n'
+        "print()\n"
+        'print("Chaque lettre ne voit que les lettres avant elle (et elle-meme).")\n'
+        'print(f"Le triangle grandit avec la longueur du mot ({len(mon_mot)} lettres ici).")\n'
+        "\n"
+        "# Masque causal interactif\n"
+        "afficher_masque_causal(mon_mot, titre=f\"Masque causal pour '{mon_mot}'\")\n"
+        "\n"
+        "# Validation\n"
+        "verifier(\n"
+        "    2,\n"
+        '    mon_mot != "chat",\n'
+        '    "Super ! Tu as explore le masque causal d\'un autre mot.",\n'
+        "    \"Change mon_mot pour un autre mot, par exemple 'plume' ou 'arbre'.\",\n"
+        ")"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Multi-heads (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "---\n"
+        "## Multi-tetes : regarder de plusieurs facons\n"
+        "\n"
+        "En pratique, on utilise **plusieurs tetes d'attention** en parallele.\n"
+        "Comme si **4 eleves posent chacun une question differente** :\n"
+        "\n"
+        "- Tete 1 : quelles lettres forment des syllabes ensemble ?\n"
+        "- Tete 2 : quelle est la voyelle la plus recente ?\n"
+        "- Tete 3 : est-ce que c'est un debut ou une fin de mot ?\n"
+        "- Tete 4 : quelle lettre est la plus rare ?\n"
+        "\n"
+        "Les resultats de toutes les tetes sont combines pour une prediction finale.\n"
+        "\n"
+        "Dans microgpt.py de Karpathy, il y a **4 tetes** d'attention."
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Visual summary (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "---\n"
+        "## Resume visuel\n"
+        "\n"
+        "```\n"
+        "Lettres d'entree :  [c] [h] [a] [t]\n"
+        "                     |   |   |   |\n"
+        "                     v   v   v   v\n"
+        "Embeddings :        [---] [---] [---] [---]\n"
+        "                     |   |   |   |\n"
+        "                     v   v   v   v\n"
+        "Attention :         Chaque lettre regarde les precedentes\n"
+        "                    et collecte l'info importante\n"
+        "                     |   |   |   |\n"
+        "                     v   v   v   v\n"
+        "Prediction :        Quelle est la prochaine lettre ?\n"
+        "```"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Conclusion (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "---\n"
+        "## Ce qu'on a appris\n"
+        "\n"
+        "- L'**attention** permet au modele de regarder toutes les lettres precedentes, pas juste la derniere\n"
+        "- Ca fonctionne avec **Q** (je cherche), **K** (j'offre), **V** (mon info)\n"
+        "- Le **masque causal** empeche de tricher en regardant le futur\n"
+        "- Plusieurs **tetes** d'attention regardent des choses differentes en parallele\n"
+        "\n"
+        "### Derniere etape\n"
+        "\n"
+        "On a maintenant toutes les pieces du puzzle. Dans la prochaine lecon,\n"
+        "on assemble tout pour construire un vrai mini-LLM !\n"
+        "\n"
+        "---\n"
+        "*Prochaine lecon : [05 - Mon premier LLM](05_mon_premier_llm.ipynb)*"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Sources (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "---\n"
+        "\n"
+        "### Sources (ISO 42001)\n"
+        "\n"
+        "- **Mecanisme Q/K/V et masque causal** : [microgpt.py](https://gist.github.com/karpathy/8627fe009c40f57531cb18360106ce95) \\u2014 Andrej Karpathy, section self-attention\n"
+        '- **"Attention Is All You Need"** : Vaswani et al., 2017, [arXiv:1706.03762](https://arxiv.org/abs/1706.03762) \\u2014 article fondateur des Transformers\n'
+        "- **Explication visuelle de l'attention** : [Video \"Let's build GPT\"](https://www.youtube.com/watch?v=kCc8FmEb1nY) \\u2014 Andrej Karpathy (2023), section attention\n"
+        "- **Multi-head attention (4 tetes dans microgpt.py)** : meme source, parametre `n_head=4`"
+    )
+)
+
+# ================================================================
+# Write notebook
+# ================================================================
+nb["cells"] = cells
+with open("notebooks/04_lattention.ipynb", "w", encoding="utf-8") as f:
+    json.dump(nb, f, ensure_ascii=False, indent=1)
+
+print(f"NB04 rebuilt: {len(cells)} cells (was 14)")
