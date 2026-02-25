@@ -39,7 +39,7 @@ EXPECTED_NB_TOTAL = {
 
 # Nombre de visualisations HTML attendues par notebook
 EXPECTED_VIZ_COUNT = {
-    "01_deviner_la_suite.ipynb": 2,  # heatmap + barres
+    "01_deviner_la_suite.ipynb": 3,  # heatmap + barres + generation
     "02_apprendre_des_erreurs.ipynb": 1,  # evolution_loss
     "03_la_memoire_du_modele.ipynb": 2,  # embeddings + barres
     "04_lattention.ipynb": 4,  # attention x2 + masque_causal x2
