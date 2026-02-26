@@ -294,22 +294,23 @@ cells.append(
         "import math\n"
         "import random\n"
         "\n"
-        "random.seed(42)\n"
+        "random.seed(42)  # pour que tout le monde ait le meme resultat\n"
         "\n"
-        "# --- Vocabulaire ---\n"
+        "# --- Vocabulaire (meme que lecon 3) ---\n"
         'VOCAB = list(".abcdefghijklmnopqrstuvwxyz")\n'
-        "VOCAB_SIZE = len(VOCAB)  # 27 caracteres\n"
+        "VOCAB_SIZE = len(VOCAB)  # 26 lettres + le point (debut/fin)\n"
         "char_to_id = {c: i for i, c in enumerate(VOCAB)}\n"
         "id_to_char = {i: c for i, c in enumerate(VOCAB)}\n"
         "\n"
         "# --- Configuration du modele ---\n"
-        "EMBED_DIM = 16   # taille des embeddings (16 nombres par lettre)\n"
-        "CONTEXT = 8      # fenetre de contexte (8 lettres max)\n"
+        "# Chaque lettre sera representee par 16 nombres (sa 'fiche d'identite')\n"
+        "EMBED_DIM = 16   # taille des embeddings\n"
+        "CONTEXT = 8      # le modele regarde 8 lettres en arriere (max)\n"
         "NUM_HEADS = 1    # 1 tete d'attention (pour simplifier)\n"
         "HEAD_DIM = EMBED_DIM // NUM_HEADS  # = 16\n"
-        "HIDDEN_DIM = 32  # taille du MLP intermediaire\n"
+        "HIDDEN_DIM = 32  # taille du reseau de neurones interne\n"
         "\n"
-        "# Comptons les parametres\n"
+        "# Comptons combien de nombres le modele doit apprendre\n"
         "nb_params = (\n"
         "    VOCAB_SIZE * EMBED_DIM       # token embeddings       = 432\n"
         "    + CONTEXT * EMBED_DIM        # position embeddings    = 128\n"
@@ -419,8 +420,9 @@ cells.append(
         "    return [random.gauss(0, scale) for _ in range(size)]\n"
         "\n"
         "\n"
+        "# mat_vec : comme passer a travers un filtre (lecon 3)\n"
         "def mat_vec(mat, vec):\n"
-        '    """Multiplication matrice x vecteur (lecon 3)."""\n'
+        '    """Multiplication matrice x vecteur."""\n'
         "    return [sum(mat[i][j] * vec[j] for j in range(len(vec))) for i in range(len(mat))]\n"
         "\n"
         "\n"
@@ -429,14 +431,16 @@ cells.append(
         "    return [x + y for x, y in zip(a, b, strict=False)]\n"
         "\n"
         "\n"
+        "# softmax : les scores deviennent des probabilites (lecon 1)\n"
         "def softmax(scores):\n"
-        '    """Scores -> probabilites (lecon 1)."""\n'
+        '    """Scores -> probabilites (somme = 1)."""\n'
         "    max_s = max(scores)\n"
         "    exps = [math.exp(s - max_s) for s in scores]\n"
         "    total = sum(exps)\n"
         "    return [e / total for e in exps]\n"
         "\n"
         "\n"
+        "# relu : porte a sens unique, seules les valeurs positives passent\n"
         "def relu(x):\n"
         '    """Si positif, on garde. Si negatif, on met a zero."""\n'
         "    return [max(0, v) for v in x]\n"
@@ -464,11 +468,11 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
-        "# --- Embeddings ---\n"
+        "# --- Embeddings (chaque lettre et chaque position ont leur vecteur) ---\n"
         "tok_emb = rand_matrix(VOCAB_SIZE, EMBED_DIM, 0.5)  # lettre -> vecteur\n"
         "pos_emb = rand_matrix(CONTEXT, EMBED_DIM, 0.5)     # position -> vecteur\n"
         "\n"
-        "# --- Attention (Q, K, V) ---\n"
+        "# --- Attention : qui est important pour predire la suite ? ---\n"
         "Wq = rand_matrix(EMBED_DIM, EMBED_DIM, 0.2)  # matrice Query\n"
         "Wk = rand_matrix(EMBED_DIM, EMBED_DIM, 0.2)  # matrice Key\n"
         "Wv = rand_matrix(EMBED_DIM, EMBED_DIM, 0.2)  # matrice Value\n"
@@ -509,11 +513,12 @@ cells.append(
     code(
         '# On encode ".pik" : chaque lettre -> vecteur de 16 nombres\n'
         'test_mot = ".pik"\n'
-        "test_ids = [char_to_id[c] for c in test_mot]\n"
+        "test_ids = [char_to_id[c] for c in test_mot]  # lettres -> numeros\n"
         "\n"
-        "# Embedding = token_embedding + position_embedding\n"
+        "# Embedding = sens de la lettre + sa position dans le mot\n"
         "hidden = []\n"
         "for i, tok_id in enumerate(test_ids):\n"
+        "    # On additionne les 2 embeddings pour avoir une representation complete\n"
         "    h = vec_add(tok_emb[tok_id], pos_emb[i % CONTEXT])\n"
         "    hidden.append(h)\n"
         "\n"
@@ -540,20 +545,21 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
-        "# Query pour la derniere position (on veut predire apres 'k')\n"
+        "# Query = 'que cherche-t-on ?' (pour la derniere position)\n"
         "q = mat_vec(Wq, hidden[-1])  # 16 nombres\n"
         "\n"
-        "# Keys et Values pour toutes les positions\n"
+        "# Key = 'qu'a-t-on a offrir ?' et Value = 'l'info a transmettre'\n"
         "scores_attn = []\n"
         "values = []\n"
         "for i in range(len(test_ids)):\n"
         "    k = mat_vec(Wk, hidden[i])  # Key de chaque position\n"
         "    v = mat_vec(Wv, hidden[i])  # Value de chaque position\n"
+        "    # Score = compatibilite entre la question (Q) et la reponse (K)\n"
         "    score = sum(q[d] * k[d] for d in range(EMBED_DIM)) / math.sqrt(EMBED_DIM)\n"
         "    scores_attn.append(score)\n"
         "    values.append(v)\n"
         "\n"
-        "attn_weights = softmax(scores_attn)  # poids d'attention\n"
+        "attn_weights = softmax(scores_attn)  # transformer les scores en poids\n"
         "\n"
         "print(\"Poids d'attention (qui est important pour predire apres 'k') :\")\n"
         "for ch, w in zip(test_mot, attn_weights, strict=False):\n"
@@ -591,14 +597,15 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
-        "# MLP : couche 1 (16 -> 32) + ReLU + couche 2 (32 -> 16)\n"
-        "h = relu(vec_add(mat_vec(W1, x), b1))    # 32 nombres\n"
-        "mlp_out = vec_add(mat_vec(W2, h), b2)     # 16 nombres\n"
-        "x = vec_add(x, mlp_out)  # connexion residuelle\n"
+        "# MLP : le reseau de neurones interne transforme le resultat de l'attention\n"
+        "h = relu(vec_add(mat_vec(W1, x), b1))    # 32 nombres (couche cachee)\n"
+        "mlp_out = vec_add(mat_vec(W2, h), b2)     # 16 nombres (retour a EMBED_DIM)\n"
+        "# Connexion residuelle : garder l'original + ajouter la nouveaute\n"
+        "x = vec_add(x, mlp_out)\n"
         "\n"
-        "# Sortie : 16 -> 27 scores -> probabilites\n"
-        "logits = mat_vec(W_out, x)  # 27 scores bruts\n"
-        "probas = softmax(logits)    # 27 probabilites (somme = 1)\n"
+        "# Sortie : les 16 nombres deviennent 27 scores (un par lettre)\n"
+        "logits = mat_vec(W_out, x)  # scores bruts (peuvent etre negatifs)\n"
+        "probas = softmax(logits)    # probabilites (entre 0 et 1, somme = 1)\n"
         "\n"
         "# Top 5 predictions\n"
         "top5 = sorted(range(VOCAB_SIZE), key=lambda i: -probas[i])[:5]\n"
@@ -632,11 +639,12 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
+        "# Cette fonction assemble les 3 etapes en une seule\n"
         "def forward_llm(sequence_ids):\n"
         '    """Passe une sequence dans le mini-LLM et retourne les probas."""\n'
         "    n = len(sequence_ids)\n"
         "\n"
-        "    # 1. Embeddings : token + position\n"
+        "    # 1. Embeddings : sens de la lettre + position dans le mot\n"
         "    hidden = []\n"
         "    for i, tok_id in enumerate(sequence_ids):\n"
         "        h = vec_add(tok_emb[tok_id], pos_emb[i % CONTEXT])\n"
@@ -779,11 +787,12 @@ cells.append(
         "        ids = [char_to_id[c] for c in mot]\n"
         "        for i in range(1, len(ids)):\n"
         "            seq = ids[:i]\n"
-        "            cible = ids[i]\n"
+        "            cible = ids[i]  # la bonne reponse\n"
         "            probas = forward_llm(seq[-CONTEXT:])\n"
+        "            # -log(proba) : si le modele est sur -> petite loss, incertain -> grande loss\n"
         "            loss_totale += -math.log(probas[cible] + 1e-10)\n"
         "            nb += 1\n"
-        "    return loss_totale / nb\n"
+        "    return loss_totale / nb  # moyenne sur toutes les positions\n"
         "\n"
         "\n"
         "loss_initiale = calcul_loss(pokemons)\n"
@@ -813,13 +822,14 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
+        "# Generer un nom lettre par lettre, comme ChatGPT genere mot par mot\n"
         'def generer_llm(debut=".", temperature=1.0, max_len=15):\n'
         '    """Genere un nom de Pokemon lettre par lettre."""\n'
         "    ids = [char_to_id[c] for c in debut]\n"
         "    resultat = debut\n"
         "    for _ in range(max_len):\n"
-        "        probas = forward_llm(ids[-CONTEXT:])\n"
-        "        # Temperature : < 1 = conservateur, > 1 = creatif\n"
+        "        probas = forward_llm(ids[-CONTEXT:])  # predire la prochaine lettre\n"
+        "        # Temperature : basse = toujours la meme chose, haute = surprenant\n"
         "        if temperature != 1.0:\n"
         "            logits = [math.log(p + 1e-10) / temperature for p in probas]\n"
         "            probas = softmax(logits)\n"
