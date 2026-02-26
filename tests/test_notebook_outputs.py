@@ -44,7 +44,7 @@ EXPECTED_VIZ_COUNT = {
     "03_la_memoire_du_modele.ipynb": 2,  # embeddings + barres
     "04_lattention.ipynb": 4,  # attention x2 + masque_causal x2
     "05_mon_premier_llm.ipynb": 7,  # architecture + barres x2 + attention x2 + temperature + generation
-    "06_entrainer_le_modele.ipynb": 3,  # evolution_loss + comparaison + barres
+    "06_entrainer_le_modele.ipynb": 4,  # evolution_loss + generation + comparaison + barres
 }
 
 # Notebook 06 entraîne un LLM.

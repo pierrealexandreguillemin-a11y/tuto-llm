@@ -221,6 +221,33 @@ infra = (
     "    ))\n"
     "\n"
     "\n"
+    # ---- afficher_generation: letter by letter animation ----
+    "def afficher_generation(mot, delai_ms=300):\n"
+    '    """Anime l\'apparition d\'un mot lettre par lettre."""\n'
+    "    uid = uuid.uuid4().hex[:8]\n"
+    "    lettres_js = json.dumps(list(mot))\n"
+    "    display(HTML(\n"
+    "        f'<!-- tuto-viz -->'\n"
+    "        f'<div style=\"margin:8px 0;font-family:monospace;font-size:1.3em\">'\n"
+    '        f\'<span id="g{uid}" style="letter-spacing:2px"></span>\'\n'
+    '        f\'<span id="c{uid}" style="animation:bk{uid} 0.7s infinite">|</span></div>\'\n'
+    "        f'<style>@keyframes bk{uid}{{0%,100%{{opacity:1}}50%{{opacity:0}}}}</style>'\n"
+    "        f'<script>(function(){{'\n"
+    "        f'var L={lettres_js},i=0,'\n"
+    "        f'el=document.getElementById(\"g{uid}\"),'\n"
+    "        f'cur=document.getElementById(\"c{uid}\");'\n"
+    "        f'var iv=setInterval(function(){{'\n"
+    "        f'if(i>=L.length){{clearInterval(iv);cur.style.display=\"none\";return}}'\n"
+    "        f'var s=document.createElement(\"span\");'\n"
+    "        f's.textContent=L[i];'\n"
+    "        f's.style.cssText=\"opacity:0;transition:opacity 0.3s\";'\n"
+    "        f'el.appendChild(s);'\n"
+    "        f'setTimeout(function(){{s.style.opacity=\"1\"}},30);'\n"
+    "        f'i++}},{delai_ms})'\n"
+    "        f'}})();</script>'\n"
+    "    ))\n"
+    "\n"
+    "\n"
     'print("Outils de visualisation charges !")'
 )
 cells.append(code(infra))
@@ -278,10 +305,12 @@ cells.append(
         "# --- Vocabulaire ---\n"
         'VOCAB = list(".abcdefghijklmnopqrstuvwxyz")\n'
         "VOCAB_SIZE = len(VOCAB)  # 27 symboles\n"
+        "# Dictionnaires de traduction : lettre <-> numero\n"
         "char_to_id = {c: i for i, c in enumerate(VOCAB)}\n"
         "id_to_char = {i: c for i, c in enumerate(VOCAB)}\n"
         "\n"
         "# --- Configuration (memes dimensions que lecon 5) ---\n"
+        "# Chaque lettre = 16 nombres (sa 'fiche d'identite')\n"
         "EMBED_DIM = 16    # taille des embeddings\n"
         "CONTEXT = 8       # fenetre de contexte\n"
         "HIDDEN_DIM = 32   # taille du MLP\n"
@@ -324,6 +353,7 @@ cells.append(
         "import random\n"
         "import time\n"
         "\n"
+        "# Graine fixe : memes resultats a chaque execution\n"
         "random.seed(42)\n"
         "\n"
         "\n"
@@ -351,6 +381,7 @@ cells.append(
         "\n"
         "\n"
         "# --- Initialisation des poids (aleatoires) ---\n"
+        "# Au debut, le modele ne sait rien : tous les poids sont au hasard\n"
         "tok_emb = rand_matrix(VOCAB_SIZE, EMBED_DIM, 0.5)  # embeddings des tokens\n"
         "pos_emb = rand_matrix(CONTEXT, EMBED_DIM, 0.5)      # embeddings de position\n"
         "Wq = rand_matrix(EMBED_DIM, EMBED_DIM, 0.2)         # poids attention (query)\n"
@@ -387,6 +418,7 @@ cells.append(
     code(
         "def forward_avec_cache(sequence_ids):\n"
         '    """Forward pass qui sauvegarde les etapes pour le backward."""\n'
+        "    # Meme calcul que lecon 5, mais on garde tout en memoire (le cache)\n"
         "    n = len(sequence_ids)\n"
         "\n"
         "    # 1. Embeddings : token + position\n"
@@ -443,7 +475,7 @@ cells.append(
         "    ]\n"
         "    probas = softmax(logits)\n"
         "\n"
-        "    # Sauvegarder TOUT pour le backward\n"
+        "    # Sauvegarder TOUT pour le backward (on en aura besoin pour remonter)\n"
         "    cache = {\n"
         '        "ids": sequence_ids,\n'
         '        "hidden": hidden,\n'
@@ -491,6 +523,7 @@ cells.append(
         "        seq = ids[:i][-CONTEXT:]  # fenetre de contexte\n"
         "        cible = ids[i]            # lettre a predire\n"
         "        probas, _ = forward_avec_cache(seq)\n"
+        "        # -log(proba) : si le modele donne 1% -> loss = 4.6 (mauvais !)\n"
         "        loss_totale += -math.log(probas[cible] + 1e-10)\n"
         "        nb += 1\n"
         "\n"
@@ -517,12 +550,14 @@ cells.append(
 # ================================================================
 cells.append(
     code(
+        "# Le modele predit lettre par lettre (comme ChatGPT predit mot par mot)\n"
         'def generer(debut=".", temperature=0.8, max_len=15):\n'
         '    """Genere un nom de Pokemon lettre par lettre."""\n'
         "    ids = [char_to_id[c] for c in debut]\n"
         "    resultat = debut\n"
         "    for _ in range(max_len):\n"
         "        probas, _ = forward_avec_cache(ids[-CONTEXT:])\n"
+        "        # temperature < 1 = prudent, > 1 = creatif\n"
         "        if temperature != 1.0:\n"
         "            logits_t = [math.log(p + 1e-10) / temperature for p in probas]\n"
         "            probas = softmax(logits_t)\n"
@@ -660,9 +695,11 @@ cells.append(
         "\n"
         "    # === ETAPE 1 : gradient de la sortie ===\n"
         "    # Meme formule que lecons 2 et 3 !\n"
+        "    # Si proba du bon = 0.3 -> gradient = 0.3 - 1 = -0.7 (faut augmenter !)\n"
         "    d_logits = [probas[v] - (1.0 if v == cible else 0.0) for v in range(VOCAB_SIZE)]\n"
         "\n"
         "    # === ETAPE 2 : gradient de W_out ===\n"
+        "    # L'erreur se propage de la sortie vers l'interieur du modele\n"
         "    d_W_out = [\n"
         "        [d_logits[v] * x_final[d] for d in range(EMBED_DIM)] for v in range(VOCAB_SIZE)\n"
         "    ]\n"
@@ -676,6 +713,7 @@ cells.append(
         "    d_xa = list(d_x)\n"
         "\n"
         "    # === ETAPE 4 : backward du MLP ===\n"
+        "    # On remonte a travers le reseau de neurones\n"
         "    d_W2 = [[d_mlp[d] * h1[j] for j in range(HIDDEN_DIM)] for d in range(EMBED_DIM)]\n"
         "    d_b2 = list(d_mlp)\n"
         "    d_h1 = [\n"
@@ -696,6 +734,7 @@ cells.append(
         "    d_hidden_last = list(d_xa)\n"
         "\n"
         "    # === ETAPE 6 : backward de l'attention ===\n"
+        "    # L'erreur remonte vers les query, cles et valeurs\n"
         "    d_pw = [\n"
         "        sum(d_attn_out[d] * valeurs[i][d] for d in range(EMBED_DIM)) for i in range(n)\n"
         "    ]\n"
@@ -734,6 +773,7 @@ cells.append(
         "                d_hkv[i][c] += d_val[i][r] * Wv[r][c]\n"
         "\n"
         "    # === ETAPE 7 : gradient des embeddings ===\n"
+        "    # Finalement, on ajuste la 'fiche d'identite' de chaque lettre\n"
         "    d_tok_emb = [[0.0] * EMBED_DIM for _ in range(VOCAB_SIZE)]\n"
         "    d_pos_emb = [[0.0] * EMBED_DIM for _ in range(n)]\n"
         "    for i in range(n):\n"
@@ -791,8 +831,10 @@ cells.append(
 # ================================================================
 cells.append(
     code(
+        "# NB_EPOCHS : combien de fois le modele voit TOUS les Pokemon\n"
         "NB_EPOCHS = 10\n"
-        "vitesse = 0.01  # learning rate\n"
+        "# vitesse (learning rate) : de combien on corrige chaque poids\n"
+        "vitesse = 0.01\n"
         "\n"
         "positions_par_mot = sum(len(p) + 1 for p in pokemons) / len(pokemons)\n"
         "total_updates = int(NB_EPOCHS * len(pokemons) * positions_par_mot)\n"
@@ -827,7 +869,7 @@ cells.append(
         "            # Backward\n"
         "            grads = backward(cache, probas, cible)\n"
         "\n"
-        "            # SGD : ajuster chaque poids\n"
+        "            # SGD : poids -= vitesse * gradient (un petit pas dans la bonne direction)\n"
         "            for v in range(VOCAB_SIZE):\n"
         "                for d in range(EMBED_DIM):\n"
         '                    W_out[v][d] -= vitesse * grads["d_W_out"][v][d]\n'
@@ -1006,6 +1048,7 @@ cells.append(
 # ================================================================
 cells.append(
     code(
+        "# Generer 10 noms avec le modele entraine\n"
         'print("=== APRES entrainement ===")\n'
         "print()\n"
         "noms_apres = []\n"
@@ -1013,6 +1056,10 @@ cells.append(
         "    nom = generer(temperature=0.8)\n"
         "    noms_apres.append(nom)\n"
         '    print(f"  {nom.capitalize()}")\n'
+        "\n"
+        "# Animation : le meilleur nom apparait lettre par lettre\n"
+        "print()\n"
+        "afficher_generation(noms_apres[0].capitalize())\n"
         "\n"
         "# Comparaison cote a cote : avant vs apres\n"
         "print()\n"
