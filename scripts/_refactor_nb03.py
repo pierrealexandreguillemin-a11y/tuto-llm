@@ -356,6 +356,7 @@ cells.append(
         "CONTEXT_SIZE = 3  # on regarde 3 lettres en arriere\n"
         "\n"
         "\n"
+        "# La 'memoire' du modele : il regarde les N dernieres lettres\n"
         "def get_context_vector(mot, position, embeddings):\n"
         '    """Recupere les embeddings des 3 dernieres lettres et les concatene."""\n'
         "    vecteur = []\n"
@@ -666,6 +667,7 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
+        "# Generation : le modele invente des noms lettre par lettre\n"
         "def generer(n=10):\n"
         '    """Genere n noms avec le modele entraine."""\n'
         "    resultats = []\n"
@@ -674,8 +676,8 @@ cells.append(
         "        for _ in range(20):  # max 20 lettres (securite)\n"
         "            # Le modele predit la prochaine lettre d'apres les 3 dernieres\n"
         "            ctx = get_context_vector(mot, len(mot), embeddings)\n"
-        "            scores = forward(ctx, W, b)\n"
-        "            probas = softmax(scores)\n"
+        "            scores = forward(ctx, W, b)  # 24 nombres -> 27 scores\n"
+        "            probas = softmax(scores)     # scores -> probabilites\n"
         "            # Choisir une lettre au hasard selon les probabilites\n"
         "            idx = random.choices(range(vocab_size), weights=probas, k=1)[0]\n"
         '            if idx == char_to_id["."]:\n'
