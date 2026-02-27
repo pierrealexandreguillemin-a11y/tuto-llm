@@ -44,6 +44,9 @@ cells.append(
         "> **Rappel** : clique sur une cellule grise, puis **Shift + Entree** pour l'executer.\n"
         "> Execute les cellules **dans l'ordre** de haut en bas.\n"
         "\n"
+        "La cellule suivante prepare les outils. **Tu n'as pas besoin de la lire**\n"
+        "\\u2014 execute-la simplement avec Shift+Entree.\n"
+        "\n"
         "---\n"
         "\n"
         "# Lecon 2 : Apprendre de ses erreurs\n"
@@ -58,6 +61,17 @@ cells.append(
         "\n"
         "L'IA fait **exactement** pareil. Elle fait une prediction, regarde si c'est\n"
         "bon, et ajuste. Ca s'appelle **l'entrainement**."
+    )
+)
+
+# CELL: Vocabulaire (markdown)
+cells.append(
+    md(
+        "> **Vocabulaire de cette lecon**\n"
+        "> - **loss** : l'erreur du modele (plus c'est bas, mieux c'est)\n"
+        "> - **gradient** : la direction de correction (de combien ajuster)\n"
+        "> - **epoch** : un passage complet sur toutes les donnees\n"
+        "> - **entrainement** (*training*) : le processus d'apprentissage par repetition"
     )
 )
 
@@ -312,6 +326,7 @@ cells.append(
 # CELL: Training loop (code)
 cells.append(
     code(
+        "# (c) Nintendo / Creatures Inc. / GAME FREAK inc. -- usage educatif\n"
         "# Les 20 Pokemon d'entrainement\n"
         "pokemons = [\n"
         '    "arcanin", "bulbizarre", "carapuce", "dracaufeu", "ectoplasma",\n'
@@ -498,6 +513,16 @@ cells.append(
     )
 )
 
+# CELL: Coup de pouce (markdown — NC-01)
+cells.append(
+    md(
+        "> **Coup de pouce** (si tu es bloque)\n"
+        ">\n"
+        "> Rappel : `generer(poids, 50)` genere 50 noms.\n"
+        "> Change juste le nombre dans les parentheses !"
+    )
+)
+
 # CELL: Exercise 3 — generate (code)
 cells.append(
     code(
@@ -540,6 +565,16 @@ cells.append(
         "Le resultat est similaire, mais la methode est celle de toutes les IA modernes !\n"
         "\n"
         "---"
+    )
+)
+
+# CELL: Defi (markdown — NC-09)
+cells.append(
+    md(
+        "> **Defi** (pour aller plus loin)\n"
+        ">\n"
+        "> Ecris un code qui entraine avec `vitesse=0.001` puis `vitesse=0.5`.\n"
+        "> Laquelle est meilleure ? Pourquoi ?"
     )
 )
 

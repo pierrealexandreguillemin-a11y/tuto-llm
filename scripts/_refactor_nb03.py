@@ -61,6 +61,9 @@ cells.append(
         "> **Rappel** : clique sur une cellule grise, puis **Shift + Entree** pour l'executer.\n"
         "> Execute les cellules **dans l'ordre** de haut en bas.\n"
         "\n"
+        "La cellule suivante prepare les outils. **Tu n'as pas besoin de la lire**\n"
+        "\\u2014 execute-la simplement avec Shift+Entree.\n"
+        "\n"
         "---\n"
         "\n"
         "# Lecon 3 : La memoire du modele\n"
@@ -73,7 +76,20 @@ cells.append(
         "Exemple : apres les lettres 'salame', le modele ne sait pas si on est dans\n"
         '"**salame**che" ou "**salame**nce" -- pourtant la suite est tres differente !\n'
         "\n"
-        "Solution : donner une **memoire** au modele. On appelle ca les **embeddings**."
+        "Solution : donner une **memoire** au modele. On appelle ca les **embeddings**\n"
+        "(des representations numeriques des lettres)."
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Vocabulaire (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Vocabulaire de cette lecon**\n"
+        "> - **embedding** : une liste de nombres qui represente une lettre\n"
+        "> - **contexte** (*context*) : les lettres precedentes que le modele regarde\n"
+        "> - **softmax** : formule qui transforme des scores en probabilites"
     )
 )
 
@@ -269,7 +285,7 @@ cells.append(
         "\n"
         "# Creons les embeddings : chaque lettre = un vecteur de taille EMBED_DIM\n"
         "# C'est comme une carte d'identite numerique pour chaque lettre\n"
-        "EMBED_DIM = 8  # 8 nombres par lettre\n"
+        "EMBED_DIM = 8  # taille de chaque embedding (8 nombres par lettre)\n"
         "\n"
         "# seed(42) = on fixe le hasard pour que tout le monde obtienne les memes nombres\n"
         "random.seed(42)\n"
@@ -483,7 +499,7 @@ cells.append(
         "\n"
         "Le calcul est simple :\n"
         "1. **forward()** : multiplie le contexte par W, ajoute b \\u2192 27 scores\n"
-        "2. **softmax()** : transforme les scores en probabilites (entre 0 et 1, somme = 1)"
+        "2. **softmax()** (la fonction qui normalise) : transforme les scores en probabilites (entre 0 et 1, somme = 1)"
     )
 )
 
@@ -568,6 +584,7 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
+        "# (c) Nintendo / Creatures Inc. / GAME FREAK inc. -- usage educatif\n"
         "# Les 20 Pokemon d'entrainement\n"
         "pokemons = [\n"
         '    "arcanin", "bulbizarre", "carapuce", "dracaufeu", "ectoplasma",\n'
@@ -620,6 +637,19 @@ cells.append(
 )
 
 # ----------------------------------------------------------------
+# CELL: MD — observation interactive apres entrainement (NC-02)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "**Observe** : la loss a baisse du debut a la fin. Le modele a-t-il appris ?\n"
+        "\n"
+        "- Si la loss commence a ~3.3 et finit a ~2.5, c'est normal \\u2014\n"
+        "  le modele fait de meilleures predictions qu'au debut !\n"
+        "- Si la loss ne baisse pas, essaie de relancer la cellule d'entrainement."
+    )
+)
+
+# ----------------------------------------------------------------
 # CELL 17: Scatter 2D embeddings (code)
 # ----------------------------------------------------------------
 cells.append(
@@ -637,7 +667,7 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     md(
-        "**Observe le graphique ci-dessus :**\n"
+        "**Reflechis** : quelles lettres sont proches sur le graphique ? Pourquoi ?\n"
         "\n"
         "- Les **voyelles** (en rouge) se regroupent-elles ?\n"
         "- Certaines consonnes sont-elles proches les unes des autres ?\n"
@@ -704,6 +734,18 @@ cells.append(
 cells.append(md("A toi de generer plus de Pokemon :"))
 
 # ----------------------------------------------------------------
+# CELL: Coup de pouce (markdown — NC-01)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Coup de pouce** (si tu es bloque)\n"
+        ">\n"
+        "> Rappel : change juste `nombre = 10` en `nombre = 30`\n"
+        "> et re-execute la cellule avec Shift+Entree."
+    )
+)
+
+# ----------------------------------------------------------------
 # CELL 22: Exercise 3 — generate (code)
 # ----------------------------------------------------------------
 cells.append(
@@ -749,6 +791,29 @@ cells.append(
         'Resultat : il apprend des combinaisons plus longues ("dra", "chu", "pla"...)\n'
         "\n"
         "---"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: MD — reflexion esprit critique (NC-04)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        '> **Reflexion** : le modele genere "Pikachien". Est-ce un vrai Pokemon ?\n'
+        "> Comment le saurais-tu ? Le modele, lui, ne peut pas faire la difference\n"
+        "> entre un nom invente et un nom reel \\u2014 il ne fait que copier des patterns."
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: MD — Defi (NC-09)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Defi** (pour aller plus loin)\n"
+        ">\n"
+        "> Ecris une fonction qui trouve les 2 lettres les plus proches dans\n"
+        "> les embeddings. Indice : calcule la distance entre chaque paire."
     )
 )
 

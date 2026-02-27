@@ -67,6 +67,9 @@ cells.append(
         "> **Rappel** : clique sur une cellule grise, puis **Shift + Entree** pour l'executer.\n"
         "> Execute les cellules **dans l'ordre** de haut en bas.\n"
         "\n"
+        "La cellule suivante prepare les outils. **Tu n'as pas besoin de la lire**\n"
+        "\\u2014 execute-la simplement avec Shift+Entree.\n"
+        "\n"
         "---\n"
         "\n"
         "# Lecon 5 : Mon premier LLM\n"
@@ -81,6 +84,18 @@ cells.append(
         "\n"
         "Maintenant, on met tout ensemble pour creer un **vrai mini-LLM**\n"
         "qui genere des noms de Pokemon inventes !"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Vocabulaire (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Vocabulaire de cette lecon**\n"
+        "> - **LLM** (*Large Language Model*) : modele de langage qui predit le mot suivant\n"
+        "> - **forward pass** : le calcul en avant, de l'entree vers la sortie\n"
+        "> - **MLP** (*Multi-Layer Perceptron*) : un petit reseau de neurones"
     )
 )
 
@@ -502,9 +517,9 @@ cells.append(
 cells.append(
     md(
         "---\n"
-        "## Etape 2 : Le forward pass (etape par etape)\n"
+        "## Etape 2 : Le forward pass (le calcul en avant)\n"
         "\n"
-        'Le "forward pass" transforme une sequence de lettres en probabilites.\n'
+        'Le "forward pass" (calcul en avant) transforme une sequence de lettres en probabilites.\n'
         'Decomposons chaque etape sur l\'exemple **".pik"** :\n'
         "\n"
         "### Etape 2a : Embeddings (lettre + position)"
@@ -778,6 +793,7 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
+        "# (c) Nintendo / Creatures Inc. / GAME FREAK inc. -- usage educatif\n"
         "# 20 Pokemon pour tester le modele (l'entrainement reel = lecon 6)\n"
         "pokemons = [\n"
         '    "arcanin", "bulbizarre", "carapuce", "dracaufeu", "ectoplasma",\n'
@@ -907,6 +923,18 @@ cells.append(
 cells.append(md("A toi de generer avec differentes temperatures :"))
 
 # ----------------------------------------------------------------
+# CELL: Coup de pouce (markdown — NC-01)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Coup de pouce** (si tu es bloque)\n"
+        ">\n"
+        "> La temperature controle la creativite : `0.1` = tres repetitif,\n"
+        "> `2.0` = tres aleatoire. Change juste le nombre et re-execute !"
+    )
+)
+
+# ----------------------------------------------------------------
 # CELL 28: Exercise 3 — temperature (code)
 # ----------------------------------------------------------------
 cells.append(
@@ -946,6 +974,18 @@ cells.append(
         '    f"Genial ! Tu as explore la temperature {ma_temperature}.",\n'
         '    "Change ma_temperature pour une autre valeur, par exemple 0.1 ou 2.0.",\n'
         ")"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: MD — Defi (NC-09)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Defi** (pour aller plus loin)\n"
+        ">\n"
+        '> Genere 100 noms et compte combien contiennent "chu".\n'
+        '> Indice : utilise `"chu" in nom` dans une boucle.'
     )
 )
 

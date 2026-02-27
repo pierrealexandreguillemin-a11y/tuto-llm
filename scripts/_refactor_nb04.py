@@ -57,6 +57,9 @@ cells.append(
         "> **Rappel** : clique sur une cellule grise, puis **Shift + Entree** pour l'executer.\n"
         "> Execute les cellules **dans l'ordre** de haut en bas.\n"
         "\n"
+        "La cellule suivante prepare les outils. **Tu n'as pas besoin de la lire**\n"
+        "\\u2014 execute-la simplement avec Shift+Entree.\n"
+        "\n"
         "---\n"
         "\n"
         "# Lecon 4 : L'attention\n"
@@ -72,6 +75,18 @@ cells.append(
         "C'est exactement ce que fait le **mecanisme d'attention** :\n"
         "il permet au modele de regarder **n'importe quel** element du passe,\n"
         "pas seulement les derniers."
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Vocabulaire (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Vocabulaire de cette lecon**\n"
+        "> - **attention** : mecanisme qui decide quelles lettres sont importantes\n"
+        "> - **Query / Key / Value** : la question, l'etiquette et l'information de chaque lettre\n"
+        "> - **masque causal** (*causal mask*) : interdit de regarder les lettres futures"
     )
 )
 
@@ -487,6 +502,18 @@ cells.append(
 )
 
 # ----------------------------------------------------------------
+# CELL: Coup de pouce (markdown — NC-01)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Coup de pouce** (si tu es bloque)\n"
+        ">\n"
+        '> Il suffit de changer `mon_mot = "chat"` par un autre mot\n'
+        "> en minuscules, puis re-execute la cellule."
+    )
+)
+
+# ----------------------------------------------------------------
 # CELL: Exercise 2 — change word (code)
 # ----------------------------------------------------------------
 cells.append(
@@ -578,6 +605,18 @@ cells.append(
         "                     v   v   v   v\n"
         "Prediction :        Quelle est la prochaine lettre ?\n"
         "```"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Defi (markdown — NC-09)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Defi** (pour aller plus loin)\n"
+        ">\n"
+        "> Invente un mot de 5 lettres et calcule ses poids d'attention a la main.\n"
+        "> Quelles lettres s'influencent le plus ?"
     )
 )
 

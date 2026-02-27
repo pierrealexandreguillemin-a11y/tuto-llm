@@ -65,6 +65,9 @@ cells.append(
         "> **Rappel** : clique sur une cellule grise, puis **Shift + Entree** pour l'executer.\n"
         "> Execute les cellules **dans l'ordre** de haut en bas.\n"
         "\n"
+        "La cellule suivante prepare les outils. **Tu n'as pas besoin de la lire**\n"
+        "\\u2014 execute-la simplement avec Shift+Entree.\n"
+        "\n"
         "---\n"
         "\n"
         "# Lecon 6 : Entrainer le modele\n"
@@ -82,6 +85,18 @@ cells.append(
         "\n"
         "> L'entrainement va prendre quelques minutes. Pendant que le modele\n"
         '> apprend, tu pourras lire les sections "En vrai..." plus bas !'
+    )
+)
+
+# ================================================================
+# CELL: Vocabulaire (markdown)
+# ================================================================
+cells.append(
+    md(
+        "> **Vocabulaire de cette lecon**\n"
+        "> - **backward** (*retropropagation*) : le calcul en arriere pour trouver les corrections\n"
+        "> - **learning rate** : la vitesse d'apprentissage (de combien on corrige a chaque pas)\n"
+        "> - **SGD** (*Stochastic Gradient Descent*) : descente de gradient, la methode d'entrainement"
     )
 )
 
@@ -828,12 +843,16 @@ cells.append(
 )
 
 # ================================================================
-# CELL 19: MD — Etape 4: Entrainement
+# CELL 19: MD — Partie B: L'entrainement
 # ================================================================
 cells.append(
     md(
         "---\n"
-        "## Etape 4 : L'entrainement\n"
+        "## Partie B \\u2014 L'entrainement\n"
+        "\n"
+        "*Si tu fais ce notebook en 2 seances, c'est ici que commence la 2e seance.*\n"
+        "\n"
+        "### Etape 4 : L'entrainement\n"
         "\n"
         "C'est la meme boucle que dans les lecons 2 et 3, mais avec le vrai LLM :\n"
         "\n"
@@ -960,6 +979,9 @@ cells.append(
     md(
         "**La loss a baisse !** Le modele a appris des patterns dans les noms de Pokemon.\n"
         "\n"
+        "Pendant que tu attends l'entrainement (~2 min), lis les sections ci-dessous\n"
+        "et reponds : **Quelle est la plus grande difference entre notre mini-LLM et ChatGPT ?**\n"
+        "\n"
         "---"
     )
 )
@@ -1015,7 +1037,7 @@ cells.append(
 cells.append(
     md(
         "---\n"
-        "## En vrai... pendant que le modele s'entraine\n"
+        "## En vrai... pendant que le modele s'entraine *(optionnel, si tu as le temps)*\n"
         "\n"
         "### Autograd vs notre backward manuel\n"
         "\n"
@@ -1051,7 +1073,7 @@ cells.append(
 cells.append(
     md(
         "---\n"
-        "## Ce qu'on n'a pas implemente\n"
+        "## Ce qu'on n'a pas implemente *(optionnel, si tu as le temps)*\n"
         "\n"
         "| Technique | Notre mini-LLM | Les vrais LLM |\n"
         "|-----------|----------------|---------------|\n"
@@ -1064,6 +1086,36 @@ cells.append(
         "| **GPU** | Non (Python pur) | Oui (1000x plus rapide) |\n"
         "\n"
         "Mais l'**algorithme** est le meme ! La difference, c'est l'**echelle**."
+    )
+)
+
+# ================================================================
+# CELL: MD — Limites et risques de l'IA (ethique NC-04)
+# ================================================================
+cells.append(
+    md(
+        "---\n"
+        "## Limites et risques de l'IA *(optionnel, si tu as le temps)*\n"
+        "\n"
+        "Notre mini-LLM s'entraine sur des noms de Pokemon. Mais les vrais LLM\n"
+        "comme ChatGPT s'entrainent sur **des milliards de textes** venant d'Internet.\n"
+        "Ca pose des problemes :\n"
+        "\n"
+        "### Biais dans les donnees\n"
+        "Si les donnees d'entrainement contiennent des prejuges, le modele\n"
+        "les reproduit. Il ne sait pas faire la difference entre un fait et un\n"
+        "stereotype.\n"
+        "\n"
+        "### Hallucinations\n"
+        "Un LLM peut **inventer des faits** avec aplomb. Il ne verifie jamais\n"
+        "ses reponses \\u2014 il predit juste le mot suivant le plus probable.\n"
+        "\n"
+        "### Impact environnemental\n"
+        "Entrainer GPT-4 a necessite **des milliers de GPU** pendant **plusieurs mois**.\n"
+        "Ca consomme enormement d'electricite et produit du CO2.\n"
+        "\n"
+        "> **Regle d'or** : toujours verifier ce que dit une IA. Un LLM est un outil,\n"
+        "> pas une source de verite."
     )
 )
 
@@ -1120,6 +1172,18 @@ cells.append(
 cells.append(md("Explore le modele entraine par toi-meme :"))
 
 # ================================================================
+# CELL: Coup de pouce (markdown — NC-01)
+# ================================================================
+cells.append(
+    md(
+        "> **Coup de pouce** (si tu es bloque)\n"
+        ">\n"
+        '> Essaie `mon_debut = ".pik"` pour forcer le debut du nom.\n'
+        "> Le modele completera a partir de la !"
+    )
+)
+
+# ================================================================
 # CELL 28: Exercise 3 (code)
 # ================================================================
 cells.append(
@@ -1160,6 +1224,18 @@ cells.append(
         "    f\"Genial ! Generation avec temperature={ma_temperature} et debut='{mon_debut}'.\",\n"
         '    "Change ma_temperature ou mon_debut pour explorer le modele entraine.",\n'
         ")"
+    )
+)
+
+# ================================================================
+# CELL: MD — Defi (NC-09)
+# ================================================================
+cells.append(
+    md(
+        "> **Defi** (pour aller plus loin)\n"
+        ">\n"
+        "> Entraine avec `vitesse=0.1` et compare la loss finale avec `vitesse=0.01`.\n"
+        "> Laquelle donne les meilleurs resultats ?"
     )
 )
 

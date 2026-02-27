@@ -70,7 +70,22 @@ cells.append(
         "**Regle d'or** : execute les cellules **dans l'ordre**, de haut en bas.\n"
         "Si tu sautes une cellule, la suivante risque de ne pas marcher.\n"
         "\n"
+        "La cellule suivante prepare les outils. **Tu n'as pas besoin de la lire**\n"
+        "\\u2014 execute-la simplement avec Shift+Entree.\n"
+        "\n"
         "---"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Vocabulaire (markdown)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Vocabulaire de cette lecon**\n"
+        "> - **bigramme** : paire de deux lettres qui se suivent\n"
+        "> - **probabilite** : un nombre entre 0 et 1 qui mesure une chance\n"
+        "> - **dataset** : l'ensemble des donnees d'entrainement"
     )
 )
 
@@ -301,6 +316,7 @@ cells.append(
 # ----------------------------------------------------------------
 cells.append(
     code(
+        "# (c) Nintendo / Creatures Inc. / GAME FREAK inc. -- usage educatif\n"
         '# Nos 20 Pokemon : le "dataset" de cette lecon\n'
         "pokemons = [\n"
         '    "arcanin",     # 7 lettres\n'
@@ -605,6 +621,18 @@ cells.append(
 )
 
 # ----------------------------------------------------------------
+# CELL: Coup de pouce (markdown — NC-01)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "> **Coup de pouce** (si tu es bloque)\n"
+        ">\n"
+        "> Rappel : `for i in range(50)` repete le code 50 fois.\n"
+        "> Tu n'as qu'a changer le nombre !"
+    )
+)
+
+# ----------------------------------------------------------------
 # CELL: Exercise 4 — generate many (code)
 # ----------------------------------------------------------------
 cells.append(
@@ -651,6 +679,28 @@ cells.append(
         "mais pas toujours, parce qu'il ne regarde qu'**une seule lettre en arriere**.\n"
         "\n"
         "---"
+    )
+)
+
+# ----------------------------------------------------------------
+# CELL: Le modele ne comprend rien (markdown — ethique NC-04)
+# ----------------------------------------------------------------
+cells.append(
+    md(
+        "---\n"
+        "## Le modele ne comprend rien\n"
+        "\n"
+        "Notre modele a genere des noms de Pokemon. Certains sont rigolos,\n"
+        "d'autres n'ont aucun sens. Mais attention :\n"
+        "\n"
+        "- Le modele **ne sait pas** ce qu'est un Pokemon\n"
+        "- Il **ne comprend pas** le francais\n"
+        "- Il **copie des patterns** (paires de lettres) sans les comprendre\n"
+        "\n"
+        "C'est la meme chose pour ChatGPT, en beaucoup plus gros : il predit\n"
+        "le mot suivant sans comprendre ce qu'il ecrit.\n"
+        "\n"
+        "> *Peut-on faire confiance a une IA qui ne comprend pas ce qu'elle dit ?*"
     )
 )
 
